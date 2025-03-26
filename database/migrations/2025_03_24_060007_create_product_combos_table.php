@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cinemas', function (Blueprint $table) {
+        Schema::create("product_combos", function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('address');
-            $table->foreignId('city_id')->constrained()->onDelete('cascade');
-            $table->string('phone');
+            $table->string("name");
+            $table->text("description")->nullable();
+            $table->decimal("price", 10, 2); // Giá combo (thường sẽ giảm hơn mua lẻ)
+            $table->string("image")->nullable();
+            $table->boolean("is_active")->default(true);
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cinemas');
+        Schema::dropIfExists('product_combos');
     }
 };
