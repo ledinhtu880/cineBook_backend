@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('release_date');
             $table->string('poster_url');
             $table->string('trailer_url')->nullable();
+            $table->enum('age_rating', ['P', 'C13', 'C16', 'C18'])->default('P');
             $table->timestamps();
         });
     }

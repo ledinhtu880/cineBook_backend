@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BookingDetail extends Model
+class BookingCombo extends Model
 {
     protected $fillable = [
         'booking_id',
-        'seat_id',
-        'ticket_price'
+        'product_combo_id',
+        'quantity',
+        'price'
     ];
 
     public function booking()
@@ -17,8 +18,8 @@ class BookingDetail extends Model
         return $this->belongsTo(Booking::class);
     }
 
-    public function seat()
+    public function combo()
     {
-        return $this->belongsTo(Seat::class);
+        return $this->belongsTo(ProductCombo::class);
     }
 }
