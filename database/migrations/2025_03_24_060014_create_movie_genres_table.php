@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('movie_genre', function (Blueprint $table) {
+        Schema::create('movie_genres', function (Blueprint $table) {
             $table->foreignId('movie_id')->constrained()->onDelete('cascade');
             $table->foreignId('genre_id')->constrained()->onDelete('cascade');
-            $table->primary(['movie_id', 'genre_id']); // Composite primary key
+            $table->primary(['movie_id', 'genre_id']);
         });
     }
 

@@ -18,6 +18,7 @@ class User extends Authenticatable
         'password',
         'role'
     ];
+    protected $appends = ['name'];
     protected $hidden = [
         'password',
     ];
@@ -31,5 +32,10 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

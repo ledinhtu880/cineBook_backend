@@ -3,10 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use App\Models\Genre;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,16 +13,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'email' => 'ledinhtu880@gmail.com',
-            'password' => bcrypt('123456'),
+            'first_name' => 'Tú',
+            'last_name' => 'Le Dinh',
+            'email' => 'admin',
+            'password' => bcrypt('6451389'),
         ]);
 
         $this->call([
             CitySeeder::class,
-            GenreSeeder::class,
             CinemaSeeder::class,
+            GenreSeeder::class,
+            MovieSeeder::class,
+            RoomSeeder::class,
+            SeatSeeder::class,
+            ProductSeeder::class,
+            ShowtimeSeeder::class,
         ]);
     }
 }

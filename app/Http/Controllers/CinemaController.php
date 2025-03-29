@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\CinemaRepository;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Http\Resources\CinemaResource;
 
 class CinemaController extends Controller
 {
@@ -21,7 +20,7 @@ class CinemaController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $cinemas
+            'data' => CinemaResource::collection($cinemas),
         ], 200);
     }
 }

@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->integer('duration'); // in minutes
-            $table->date('release_date');
+            $table->date('release_date')->nullable();
             $table->string('poster_url');
             $table->string('trailer_url')->nullable();
-            $table->enum('age_rating', ['P', 'C13', 'C16', 'C18'])->default('P');
+            $table->enum('age_rating', ['P', 'K', 'T13', 'T16', 'T18'])->default('P');
             $table->timestamps();
         });
     }

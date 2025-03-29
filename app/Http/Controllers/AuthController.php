@@ -62,15 +62,20 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
 
+            $errors = [];
             $user = User::where('email', $request->email)->first();
+
             if (!$user) {
-                throw ValidationException::withMessages([
-                    'email' => ['Email không tồn tại trong hệ thống, hãy kiểm tra lại']
-                ]);
-            } else if (!Hash::check($request->password, $user->password)) {
-                throw ValidationException::withMessages([
-                    'password' => ['Mật khẩu không chính xác, hãy kiểm tra lại']
-                ]);
+                $errors['email'] = ['Email không tồn tại trong hệ thống, hãy kiểm tra lại'];
+            }
+
+            if ($user && !Hash::check($request->password, $user->password)) {
+                $errors['password'] = ['Mật khẩu không chính xác, hãy kiểm tra lại'];
+            }
+
+            if (!empty($errors)) {
+                Log::info("Du lieu: ", [$errors]);
+                throw ValidationException::withMessages($errors);
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -102,11 +107,19 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Logged out successfully'
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Đăng xuất thành công'
+            ]);
+        } catch (Exception $e) {
+            Log::error("Error in AuthController@logout: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đã xảy ra lỗi khi đăng xuất'
+            ], 500);
+        }
     }
 }
