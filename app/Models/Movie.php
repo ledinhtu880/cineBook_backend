@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
@@ -15,11 +16,6 @@ class Movie extends Model
         'poster_url',
         'trailer_url',
         'age_rating'
-    ];
-
-    protected $casts = [
-        'release_date' => 'date',
-        'duration' => 'integer'
     ];
 
     /**
@@ -49,27 +45,31 @@ class Movie extends Model
     {
         return $query->where('release_date', '>', now());
     }
-
-    /**
-     * Get formatted duration (e.g., "2h 30m")
-     */
-    public function getFormattedDurationAttribute(): string
+    protected function duration(): Attribute
     {
-        $hours = floor($this->duration / 60);
-        $minutes = $this->duration % 60;
+        return Attribute::make(
+            get: function ($value) {
+                $hours = floor($value / 60);
+                $minutes = $value % 60;
 
-        if ($hours > 0 && $minutes > 0) {
-            return "{$hours}h {$minutes}m";
-        }
+                if ($hours > 0 && $minutes > 0) {
+                    return "{$hours}h {$minutes}m";
+                }
 
-        if ($hours > 0) {
-            return "{$hours}h";
-        }
+                if ($hours > 0) {
+                    return "{$hours}h";
+                }
 
-        return "{$minutes}m";
+                return "{$minutes}m";
+            },
+            set: fn($value) => $value
+        );
     }
-    public function getFormattedReleaseDateAttribute()
+    protected function releaseDate(): Attribute
     {
-        return Carbon::parse($this->release_date)->format('d/m/Y');
+        return Attribute::make(
+            get: fn($value) => Carbon::parse($value)->format('d/m/Y'),
+            set: fn($value) => Carbon::parse($value)->format('Y-m-d')
+        );
     }
 }

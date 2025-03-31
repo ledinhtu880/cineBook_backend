@@ -16,10 +16,11 @@ class MovieResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
-            'duration' => $this->formatted_duration,
-            'release_date' => $this->formatted_release_date,
-            'poster_url' => $this->poster_url,
+            'duration' => $this->duration,
+            'release_date' => $this->release_date,
+            'poster_url' => "http://localhost:8000/storage/" . $this->poster_url,
             'trailer_url' => $this->trailer_url,
             'age_rating' => $this->age_rating,
         ];

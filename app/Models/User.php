@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -34,12 +35,17 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
-    public function getNameAttribute()
+    protected function name(): Attribute
     {
-        return $this->last_name . ' ' . $this->first_name;
+        return Attribute::make(
+            get: fn() => $this->last_name . ' ' . $this->first_name
+        );
     }
-    public function getFormattedRoleAttribute()
+
+    protected function formattedRole(): Attribute
     {
-        return $this->role === 'admin' ? 'Quản trị viên' : 'Người dùng';
+        return Attribute::make(
+            get: fn() => $this->role === 'admin' ? 'Quản trị viên' : 'Người dùng'
+        );
     }
 }
