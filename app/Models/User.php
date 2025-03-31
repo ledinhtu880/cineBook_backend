@@ -18,7 +18,6 @@ class User extends Authenticatable
         'password',
         'role'
     ];
-    protected $appends = ['name'];
     protected $hidden = [
         'password',
     ];
@@ -26,6 +25,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'role' => \App\Casts\RoleCast::class,
         ];
     }
 
@@ -36,6 +36,10 @@ class User extends Authenticatable
 
     public function getNameAttribute()
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->last_name . ' ' . $this->first_name;
+    }
+    public function getFormattedRoleAttribute()
+    {
+        return $this->role === 'admin' ? 'Quản trị viên' : 'Người dùng';
     }
 }

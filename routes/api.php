@@ -1,23 +1,88 @@
 <?php
 
-use App\Http\Controllers\CinemaController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MovieController;
+#region Middleware
+use App\Http\Middleware\AdminMiddleware;
+#endregion
+#region Admin Controller
+use App\Http\Controllers\Admin\AdminMovieController;
+#endregion
+#region Auth Controller
+use App\Http\Controllers\Auth\AuthController;
+#endregion
+#region Api Controllers
+use App\Http\Controllers\Api\CinemaController;
+use App\Http\Controllers\Api\MovieController;
 use Illuminate\Support\Facades\Route;
+#endregion
 
-Route::controller(AuthController::class)->prefix('auth')->group(function () {
+#region Auth Routes
+Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
+    Route::post('/forgot-password', 'forgotPassword');
+    Route::post('/reset-password', 'resetPassword');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', 'logout');
+        Route::get('/me', 'me');
     });
 });
+#endregion
 
-Route::controller(CinemaController::class)->prefix('cinemas')->group(function () {
-    Route::get('/getAll', 'index');
+#region User Routes (Required Authentication)
+/* Route::middleware('auth:sanctum')->group(function () {
+    // Profile Management
+    Route::prefix('profile')->controller(ProfileController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::put('/', 'update');
+        Route::put('/password', 'updatePassword');
+    });
+
+    // Booking Management
+    Route::prefix('bookings')->controller(BookingController::class)->group(function () {
+        Route::get('/', 'index');                // Lịch sử đặt vé
+        Route::post('/', 'store');               // Đặt vé mới
+        Route::get('/{id}', 'show');            // Chi tiết đặt vé
+        Route::delete('/{id}', 'cancel');       // Hủy vé (nếu cho phép)
+    });
+
+    // Reviews & Ratings
+    Route::prefix('reviews')->controller(ReviewController::class)->group(function () {
+        Route::post('/', 'store');              // Thêm đánh giá
+        Route::put('/{id}', 'update');         // Sửa đánh giá
+        Route::delete('/{id}', 'destroy');     // Xóa đánh giá
+    });
+}); */
+#endregion
+
+#region Public Routes
+Route::prefix('movies')->controller(MovieController::class)->group(function () {
+    Route::get('/', 'index');                    // Tất cả phim
+    Route::get('/now-showing', 'nowShowing');    // Phim đang chiếu
+    Route::get('/coming-soon', 'comingSoon');    // Phim sắp chiếu
+    Route::get('/{id}', 'show');                 // Chi tiết phim
 });
 
-Route::controller(MovieController::class)->prefix('movies')->group(function () {
-    Route::get('/getAll', 'index');
+Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
+    Route::get('/', 'index');                    // Tất cả rạp
+    Route::get('/{id}', 'show');                 // Chi tiết rạp
+    Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
 });
+#endregion
+
+#region Admin Routes
+Route::middleware(['auth:sanctum', AdminMiddleware::class])
+    ->prefix('admin')
+    ->group(function () {
+        // Movie Management
+        Route::apiResource('movies', AdminMovieController::class);
+
+        // Booking Management
+        /* Route::prefix('bookings')->controller(AdminBookingController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/statistics', 'statistics');  // Thống kê doanh thu
+            Route::get('/{id}', 'show');
+            Route::put('/{id}/status', 'updateStatus');
+        }); */
+    });
+#endregion

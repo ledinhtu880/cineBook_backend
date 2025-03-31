@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\Movie;
+use App\Helpers\ImageHelper;
 use Carbon\Carbon;
 
 class MovieSeeder extends Seeder
@@ -28,16 +28,14 @@ class MovieSeeder extends Seeder
         foreach ($movies as $movie) {
             $releaseDate = null;
 
-            // Ưu tiên sử dụng full_release_date nếu có
             if (isset($movie['full_release_date']) && $movie['full_release_date'] !== 'Không xác định') {
                 try {
                     $releaseDate = Carbon::createFromFormat('d/m/Y', $movie['full_release_date'])->format('Y-m-d');
                 } catch (\Exception $e) {
-                    // Bỏ qua lỗi
+                    throw new \Exception("Không thể phân tích ngày: " . ($movie['full_release_date'] ?? 'null'));
                 }
             }
 
-            // Nếu không có full_release_date, thử với release_date
             if ($releaseDate === null && isset($movie['release_date']) && $movie['release_date'] !== 'Không xác định') {
                 try {
                     // Thử với định dạng đầy đủ trước
@@ -56,21 +54,17 @@ class MovieSeeder extends Seeder
                 }
             }
 
-            /* Movie::create([
-                'title' => $movie['title'],
-                'description' => $movie['description'] ?? 'Chưa có mô tả',
-                'duration' => $movie['duration'] ?? 0,
-                'release_date' => $releaseDate,
-                'poster_url' => $movie['poster_url'],
-                'trailer_url' => $movie['trailer_url'] ?? null,
-                'age_rating' => $movie['age_rating'] ?? 'P',
-            ]); */
+            $posterPath = null;
+            if (isset($movie['poster_url'])) {
+                $posterPath = ImageHelper::downloadImage($movie['poster_url']);
+            }
+
             $movieId = DB::table('movies')->insertGetId([
                 'title' => $movie['title'],
                 'description' => $movie['description'] ?? 'Chưa có mô tả',
                 'duration' => $movie['duration'] ?? 0,
                 'release_date' => $releaseDate,
-                'poster_url' => $movie['poster_url'],
+                'poster_url' => $posterPath ?? 'posters/default.jpg',
                 'trailer_url' => $movie['trailer_url'] ?? null,
                 'age_rating' => $movie['age_rating'] ?? 'P',
                 'created_at' => now(),

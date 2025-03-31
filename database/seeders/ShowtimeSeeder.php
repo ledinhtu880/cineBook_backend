@@ -17,15 +17,26 @@ class ShowtimeSeeder extends Seeder
         $rooms = DB::table('rooms')->get();
 
         foreach ($rooms as $room) {
-            $date = Carbon::now()->addDays(rand(1, 30))->startOfDay();
             $showtimes = [];
 
             for ($i = 0; $i < rand(2, 3); $i++) {
                 $movie = $movies->random();
+
+                // Lấy ngày bắt đầu là max giữa ngày hiện tại và release_date
+                $startDate = Carbon::parse($movie->release_date)
+                    ->startOfDay()
+                    ->max(Carbon::now()->startOfDay());
+
+                // Random ngày chiếu trong 30 ngày tiếp theo
+                $date = $startDate->copy()->addDays(rand(0, 7));
+
                 $startTime = $this->getAvailableStartTime($showtimes, $date);
+                if (!$startTime) continue;
+
                 $endTime = $startTime->copy()->addMinutes($movie->duration);
 
-                if ($startTime && $endTime->hour < 23 || ($endTime->hour == 23 && $endTime->minute <= 30)) {
+                // Kiểm tra thời gian kết thúc hợp lệ
+                if ($endTime->hour < 23 || ($endTime->hour == 23 && $endTime->minute <= 30)) {
                     $showtimes[] = [
                         'movie_id' => $movie->id,
                         'cinema_id' => $room->cinema_id,
@@ -37,7 +48,10 @@ class ShowtimeSeeder extends Seeder
                     ];
                 }
             }
-            DB::table('showtimes')->insert($showtimes);
+
+            if (!empty($showtimes)) {
+                DB::table('showtimes')->insert($showtimes);
+            }
         }
     }
 

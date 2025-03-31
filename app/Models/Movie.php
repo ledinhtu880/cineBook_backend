@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Movie extends Model
 {
@@ -37,24 +38,16 @@ class Movie extends Model
     {
         return $this->hasMany(Showtime::class);
     }
-
-    /**
-     * Scope to get currently showing movies
-     */
     public function scopeNowShowing($query)
     {
-        return $query->whereHas('showtimes', function ($query) {
-            $query->where('start_time', '>=', now());
-        });
+        return $query->where('release_date', '<=', now())
+            ->whereHas('showtimes', function ($query) {
+                $query->where('start_time', '>=', now());
+            });
     }
-
-    /**
-     * Scope to get upcoming movies
-     */
     public function scopeComingSoon($query)
     {
-        return $query->where('release_date', '>', now())
-            ->orWhereDoesntHave('showtimes');
+        return $query->where('release_date', '>', now());
     }
 
     /**
@@ -65,6 +58,18 @@ class Movie extends Model
         $hours = floor($this->duration / 60);
         $minutes = $this->duration % 60;
 
-        return ($hours > 0 ? $hours . 'h ' : '') . ($minutes > 0 ? $minutes . 'm' : '');
+        if ($hours > 0 && $minutes > 0) {
+            return "{$hours}h {$minutes}m";
+        }
+
+        if ($hours > 0) {
+            return "{$hours}h";
+        }
+
+        return "{$minutes}m";
+    }
+    public function getFormattedReleaseDateAttribute()
+    {
+        return Carbon::parse($this->release_date)->format('d/m/Y');
     }
 }

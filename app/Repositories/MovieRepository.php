@@ -40,4 +40,13 @@ class MovieRepository
     {
         return $this->model->destroy($id);
     }
+    public function getNowShowing()
+    {
+        return $this->model->nowShowing()->get();
+    }
+
+    public function getComingSoon()
+    {
+        return $this->model->comingSoon()->get();
+    }
 }

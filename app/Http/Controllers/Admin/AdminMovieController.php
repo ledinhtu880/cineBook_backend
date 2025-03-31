@@ -1,12 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Repositories\MovieRepository;
 use App\Http\Resources\MovieResource;
-use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;;
 
-class MovieController extends Controller
+use Illuminate\Http\Request;
+use App\Models\Movie;
+
+class AdminMovieController extends Controller
 {
     protected $movieRepository;
 
@@ -14,7 +18,6 @@ class MovieController extends Controller
     {
         $this->movieRepository = $movieRepository;
     }
-
     public function index()
     {
         try {
@@ -31,5 +34,37 @@ class MovieController extends Controller
                 'message' => 'Failed to fetch movies',
             ], 500);
         }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Movie $movie)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Movie $movie)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Movie $movie)
+    {
+        //
     }
 }

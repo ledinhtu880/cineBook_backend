@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
@@ -22,21 +25,15 @@ class AuthController extends Controller
                 'password_confirmation' => 'required|same:password'
             ]);
 
-            $user = User::create([
+            User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
 
-            $token = $user->createToken('auth_token')->plainTextToken;
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Đăng ký thành công',
-                'data' => [
-                    'user' => $user,
-                    'token' => $token
-                ]
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -74,22 +71,22 @@ class AuthController extends Controller
             }
 
             if (!empty($errors)) {
-                Log::info("Du lieu: ", [$errors]);
                 throw ValidationException::withMessages($errors);
             }
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+            // Tạo token
+            $token = $user->createToken('auth_token', expiresAt: now()->addMinutes(30))->plainTextToken;
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Đăng nhập thành công',
                 'data' => [
-                    'user' => $user,
-                    'token' => $token
+                    'user' => new UserResource($user),
+                    'token' => $token,
+                    'expires_at' => now()->addMinutes(30)->toDateTimeString()
                 ]
             ]);
         } catch (ValidationException $e) {
-            Log::error("Error in AuthController@login: " . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Dữ liệu không hợp lệ',
@@ -104,7 +101,6 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
     public function logout(Request $request)
     {
         try {
