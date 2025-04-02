@@ -9,27 +9,22 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Exception;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         try {
-            $request->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8',
-                'password_confirmation' => 'required|same:password'
-            ]);
-
-            User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+            // User::create([
+            //     'first_name' => $request->first_name,
+            //     'last_name' => $request->last_name,
+            //     'email' => $request->email,
+            //     'password' => Hash::make($request->password),
+            // ]);
 
             return response()->json([
                 'status' => 'success',
@@ -51,14 +46,9 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
-
             $errors = [];
             $user = User::where('email', $request->email)->first();
 
@@ -75,7 +65,9 @@ class AuthController extends Controller
             }
 
             // Tạo token
-            $token = $user->createToken('auth_token', expiresAt: now()->addMinutes(30))->plainTextToken;
+            $token = $user
+                ->createToken('auth_token', expiresAt: now()->addMinutes(30))
+                ->plainTextToken;
 
             return response()->json([
                 'status' => 'success',
