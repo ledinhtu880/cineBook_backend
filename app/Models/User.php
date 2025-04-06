@@ -21,6 +21,7 @@ class User extends Authenticatable
     ];
     protected $hidden = [
         'password',
+        'remember_token',
     ];
     protected function casts(): array
     {
@@ -45,7 +46,7 @@ class User extends Authenticatable
     protected function formattedRole(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->role === 'admin' ? 'Quản trị viên' : 'Người dùng'
+            get: fn() => $this->role === 1 ? 'Quản trị viên' : 'Người dùng'
         );
     }
 }

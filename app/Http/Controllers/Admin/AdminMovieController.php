@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Repositories\MovieRepository;
 use App\Http\Resources\MovieResource;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use App\Models\Movie;

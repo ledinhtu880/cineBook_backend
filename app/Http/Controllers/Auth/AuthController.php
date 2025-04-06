@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Validation\ValidationException;
-use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
@@ -16,15 +17,43 @@ use Exception;
 
 class AuthController extends Controller
 {
+    public function user()
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Người dùng chưa đăng nhập'
+                ], 401);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'user' => new UserResource($user)
+                ]
+            ]);
+        } catch (Exception $e) {
+            Log::error("Error in AuthController@user: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đã xảy ra lỗi khi lấy thông tin người dùng',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function register(RegisterRequest $request)
     {
         try {
-            // User::create([
-            //     'first_name' => $request->first_name,
-            //     'last_name' => $request->last_name,
-            //     'email' => $request->email,
-            //     'password' => Hash::make($request->password),
-            // ]);
+            User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -66,7 +95,7 @@ class AuthController extends Controller
 
             // Tạo token
             $token = $user
-                ->createToken('auth_token', expiresAt: now()->addMinutes(30))
+                ->createToken('auth_token'/* , expiresAt: now()->addMinutes(30) */)
                 ->plainTextToken;
 
             return response()->json([
@@ -79,6 +108,7 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (ValidationException $e) {
+            Log::error("Error in AuthController@login: " . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Dữ liệu không hợp lệ',
@@ -96,7 +126,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            $request->user()->tokens()->delete();
 
             return response()->json([
                 'status' => 'success',

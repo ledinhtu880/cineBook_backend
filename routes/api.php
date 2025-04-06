@@ -5,6 +5,7 @@ use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
 use App\Http\Controllers\Admin\AdminMovieController;
+use App\Http\Controllers\Api\AdminUserController;
 #endregion
 #region Auth Controller
 use App\Http\Controllers\Auth\AuthController;
@@ -24,7 +25,7 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', 'logout');
-        Route::get('/me', 'me');
+        Route::get('/me', 'user');
     });
 });
 #endregion
@@ -76,6 +77,7 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])
     ->group(function () {
         // Movie Management
         Route::apiResource('movies', AdminMovieController::class);
+        Route::apiResource('users', AdminUserController::class);
 
         // Booking Management
         /* Route::prefix('bookings')->controller(AdminBookingController::class)->group(function () {
