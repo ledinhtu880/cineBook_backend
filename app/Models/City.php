@@ -15,4 +15,9 @@ class City extends Model
     {
         return $this->hasMany(Cinema::class);
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

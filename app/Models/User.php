@@ -15,6 +15,8 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'phone',
+        'city_id',
         'email',
         'password',
         'role'
@@ -34,6 +36,11 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 
     protected function name(): Attribute

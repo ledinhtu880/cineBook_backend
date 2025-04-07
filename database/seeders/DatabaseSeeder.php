@@ -12,22 +12,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'first_name' => 'Tú',
-            'last_name' => 'Lê Đình',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('6451389'),
-            'role' => 'admin',
-        ]);
-
-
-        User::create([
-            'first_name' => 'dùng',
-            'last_name' => 'người',
-            'email' => 'user@gmail.com',
-            'password' => bcrypt('6451389'),
-        ]);
-
         $this->call([
             CitySeeder::class,
             CinemaSeeder::class,
@@ -38,5 +22,27 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ShowtimeSeeder::class,
         ]);
+
+
+        User::create([
+            'first_name' => 'Tú',
+            'last_name' => 'Lê Đình',
+            'email' => 'admin@gmail.com',
+            'password' => bcrypt('6451389'),
+            'phone' => '0865176605',
+            'city_id' => 1,
+            'role' => 'admin',
+        ]);
+
+        for ($i = 0; $i <= 10; $i++) {
+            User::create([
+                'first_name' => 'dùng ' . $i,
+                'last_name' => 'người',
+                'email' => "user$i@gmail.com",
+                'phone' => "012345678$i",
+                'city_id' => 1,
+                'password' => bcrypt('6451389'),
+            ]);
+        }
     }
 }
