@@ -28,7 +28,7 @@ class AdminMovieController extends Controller
                 'data' => MovieResource::collection($movies),
             ], 200);
         } catch (\Exception $ex) {
-            Log::error('Error fetching movies: ' . $ex->getMessage());
+            Log::error('Error in AdminMovieController@index: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch movies',

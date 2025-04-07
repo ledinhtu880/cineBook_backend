@@ -19,6 +19,7 @@ class MovieResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'duration' => $this->duration,
+            'genres' => $this->genres_list,
             'release_date' => $this->release_date,
             'poster_url' => "http://localhost:8000/storage/" . $this->poster_url,
             'trailer_url' => $this->trailer_url,

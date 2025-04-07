@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -18,13 +19,16 @@ class Movie extends Model
         'age_rating'
     ];
 
+    protected $appends = [
+        'genres',
+    ];
+
     /**
      * Get the genres associated with the movie
      */
-    public function genres()
+    public function genres(): BelongsToMany
     {
-        return $this->belongsToMany(Genre::class, 'movie_genre')
-            ->using(MovieGenre::class);
+        return $this->belongsToMany(Genre::class, 'movie_genres');
     }
 
     /**
@@ -49,7 +53,7 @@ class Movie extends Model
     {
         return Attribute::make(
             get: function ($value) {
-                $hours = floor($value / 60);
+                /* $hours = floor($value / 60);
                 $minutes = $value % 60;
 
                 if ($hours > 0 && $minutes > 0) {
@@ -60,8 +64,16 @@ class Movie extends Model
                     return "{$hours}h";
                 }
 
-                return "{$minutes}m";
+                return "{$minutes}m"; */
+                return "{$value} phút";
             },
+            set: fn($value) => $value
+        );
+    }
+    protected function genresList(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $this->genres->pluck('name')->implode(', '),
             set: fn($value) => $value
         );
     }
