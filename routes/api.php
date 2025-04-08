@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\AuthController;
 #endregion
 #region Api Controllers
 use App\Http\Controllers\Api\CinemaController;
+use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\MovieController;
 use Illuminate\Support\Facades\Route;
 #endregion
@@ -68,6 +69,10 @@ Route::prefix('cinemas')->controller(CinemaController::class)->group(function ()
     Route::get('/', 'index');                    // Tất cả rạp
     Route::get('/{id}', 'show');                 // Chi tiết rạp
     Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
+});
+
+Route::prefix('cities')->controller(CityController::class)->group(function () {
+    Route::get('/', 'index');                    // Tất cả rạp
 });
 #endregion
 

@@ -19,6 +19,17 @@ return new class extends Migration
             $table->boolean('is_sweetbox')->default(false);
             $table->timestamps();
         });
+
+        Schema::create('seat_prices', function (Blueprint $table) {
+            $table->id();
+            $table->enum('seat_type', ['normal', 'vip', 'sweetbox']);
+            $table->decimal('price', 10, 2);
+            $table->foreignId('cinema_id')->constrained()->onDelete('cascade');  // Giá có thể khác nhau theo rạp
+            $table->timestamps();
+
+            // Composite unique key
+            $table->unique(['seat_type', 'cinema_id']);
+        });
     }
     /**
      * Reverse the migrations.
@@ -26,5 +37,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('seats');
+        Schema::dropIfExists('seat_prices');
     }
 };
