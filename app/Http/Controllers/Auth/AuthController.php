@@ -31,9 +31,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => [
-                    'user' => new UserResource($user)
-                ]
+                'data' => new UserResource($user)
             ]);
         } catch (Exception $e) {
             Log::error("Error in AuthController@user: " . $e->getMessage());

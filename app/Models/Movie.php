@@ -21,6 +21,7 @@ class Movie extends Model
 
     protected $appends = [
         'genres',
+        'duration_label'
     ];
 
     /**
@@ -49,39 +50,19 @@ class Movie extends Model
     {
         return $query->where('release_date', '>', now());
     }
-    protected function duration(): Attribute
+    public function getDurationLabelAttribute()
     {
-        return Attribute::make(
-            get: function ($value) {
-                /* $hours = floor($value / 60);
-                $minutes = $value % 60;
-
-                if ($hours > 0 && $minutes > 0) {
-                    return "{$hours}h {$minutes}m";
-                }
-
-                if ($hours > 0) {
-                    return "{$hours}h";
-                }
-
-                return "{$minutes}m"; */
-                return "{$value} phút";
-            },
-            set: fn($value) => $value
-        );
+        return  $this->duration . ' phút';
+    }
+    public function getReleaseDateLabelAttribute()
+    {
+        return Carbon::parse($this->release_date)->format('d/m/Y');
     }
     protected function genresList(): Attribute
     {
         return Attribute::make(
             get: fn($value) => $this->genres->pluck('name')->implode(', '),
             set: fn($value) => $value
-        );
-    }
-    protected function releaseDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => Carbon::parse($value)->format('d/m/Y'),
-            set: fn($value) => Carbon::parse($value)->format('Y-m-d')
         );
     }
 }
