@@ -22,9 +22,10 @@ return new class extends Migration
 
         Schema::create('seat_prices', function (Blueprint $table) {
             $table->id();
-            $table->enum('seat_type', ['normal', 'vip', 'sweetbox']);
+            $table->foreignId('cinema_id')->constrained()->onDelete('cascade');
+            $table->enum('seat_type', ['normal', 'vip', 'sweetbox'])->default('normal');
+            $table->enum('day_type', ['weekday', 'weekend', 'holiday'])->default('weekday');
             $table->decimal('price', 10, 2);
-            $table->foreignId('cinema_id')->constrained()->onDelete('cascade');  // Giá có thể khác nhau theo rạp
             $table->timestamps();
 
             // Composite unique key

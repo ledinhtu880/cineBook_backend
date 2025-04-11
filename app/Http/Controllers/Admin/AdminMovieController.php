@@ -33,7 +33,7 @@ class AdminMovieController extends Controller
             Log::error('Error in AdminMovieController@index: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch movies',
+                'message' => 'Quá trình tải phim xảy ra lỗi',
             ], 500);
         }
     }
@@ -75,7 +75,7 @@ class AdminMovieController extends Controller
             Log::error('Error in AdminMovieController@store: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create movies',
+                'message' => 'Quá trình thêm phim xảy ra lỗi',
             ], 500);
         }
     }
@@ -86,7 +86,7 @@ class AdminMovieController extends Controller
             if (!$movie) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Movie not found',
+                    'message' => 'Không tìm thấy phim',
                 ], 404);
             }
 
@@ -98,7 +98,7 @@ class AdminMovieController extends Controller
             Log::error('Error in AdminMovieController@show: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch movie',
+                'message' => 'Quá trình lấy phim xảy ra lỗi',
             ], 500);
         }
     }
@@ -130,7 +130,7 @@ class AdminMovieController extends Controller
             }
 
             // Cập nhật movie với dữ liệu đã xác thực
-            $movie->update($validatedData);
+            $this->movieRepository->update($movie->id, $validatedData);
 
             return response()->json([
                 'status' => 'success',
@@ -146,19 +146,18 @@ class AdminMovieController extends Controller
             Log::error('Error in AdminMovieController@update: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to update movies',
+                'message' => 'Quá trình cập nhật phim xảy ra lỗi',
             ], 500);
         }
     }
     public function destroy(string $id)
     {
         try {
-            Log::info('Delete movie with ID: ' . $id);
             $movie = $this->movieRepository->find($id);
             if (!$movie) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Movie not found',
+                    'message' => 'Không tìm thấy phòng phim',
                 ], 404);
             }
             $this->movieRepository->delete($id);
@@ -171,7 +170,7 @@ class AdminMovieController extends Controller
             Log::error('Error in AdminMovieController@destroy: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to delete movies',
+                'message' => 'Quá trình xóa phim xảy ra lỗi',
             ], 500);
         }
     }

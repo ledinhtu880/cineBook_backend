@@ -1,17 +1,18 @@
 <?php
 
 #region Middleware
+use App\Http\Controllers\Admin\AdminCinemaController;
 use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
 use App\Http\Controllers\Admin\AdminMovieController;
+use App\Http\Controllers\Api\AdminRoomController;
 use App\Http\Controllers\Api\AdminUserController;
 #endregion
 #region Auth Controller
 use App\Http\Controllers\Auth\AuthController;
 #endregion
 #region Api Controllers
-use App\Http\Controllers\Api\CinemaController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\MovieController;
 use Illuminate\Support\Facades\Route;
@@ -59,20 +60,18 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 
 #region Public Routes
 Route::prefix('movies')->controller(MovieController::class)->group(function () {
-    Route::get('/', 'index');                    // Tất cả phim
     Route::get('/now-showing', 'nowShowing');    // Phim đang chiếu
     Route::get('/coming-soon', 'comingSoon');    // Phim sắp chiếu
     Route::get('/{id}', 'show');                 // Chi tiết phim
 });
 
-Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
-    Route::get('/', 'index');                    // Tất cả rạp
+/* Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
     Route::get('/{id}', 'show');                 // Chi tiết rạp
     Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
-});
+}); */
 
 Route::prefix('cities')->controller(CityController::class)->group(function () {
-    Route::get('/', 'index');                    // Tất cả rạp
+    Route::get('/', 'index');
 });
 #endregion
 
@@ -83,6 +82,13 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])
         // Movie Management
         Route::apiResource('movies', AdminMovieController::class);
         Route::apiResource('users', AdminUserController::class);
+        Route::apiResource('cinemas', AdminCinemaController::class);
+        Route::apiResource('rooms', AdminRoomController::class);
+
+        Route::prefix('cinemas')->controller(AdminCinemaController::class)->group(function () {
+            Route::get('/{id}/rooms', 'getRooms');
+            Route::post('/{id}/rooms', 'storeRoom');
+        });
 
         // Booking Management
         /* Route::prefix('bookings')->controller(AdminBookingController::class)->group(function () {

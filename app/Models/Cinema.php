@@ -9,6 +9,7 @@ class Cinema extends Model
     protected $fillable = [
         'name',
         'address',
+        'city_id',
         'phone'
     ];
 

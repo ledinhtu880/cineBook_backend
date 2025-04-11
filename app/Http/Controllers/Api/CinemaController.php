@@ -21,11 +21,14 @@ class CinemaController extends Controller
         try {
             $cinemas = $this->cinemaRepository->all();
 
-            return response()->json(CinemaResource::collection($cinemas), 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => CinemaResource::collection($cinemas)
+            ], 200);
         } catch (\Exception $ex) {
             Log::error('Error in CinemaController@index: ' . $ex->getMessage());
             return response()->json([
-                'message' => 'Failed to fetch movies',
+                'message' => 'Quá trình tải rạp chiếu phim bị lỗi',
             ], 500);
         }
     }

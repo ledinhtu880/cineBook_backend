@@ -21,7 +21,10 @@ class MovieController extends Controller
         try {
             $movies = $this->movieRepository->all();
 
-            return response()->json(MovieResource::collection($movies), 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => MovieResource::collection($movies)
+            ], 200);
         } catch (\Exception $ex) {
             Log::error('Error in MovieController@index: ' . $ex->getMessage());
             return response()->json([
@@ -33,7 +36,10 @@ class MovieController extends Controller
     {
         try {
             $movies = $this->movieRepository->getNowShowing();
-            return response()->json(MovieResource::collection($movies), 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => MovieResource::collection($movies)
+            ], 200);
         } catch (\Exception $ex) {
             Log::error('Error in MovieController@nowShowing: ' . $ex->getMessage());
             return response()->json([
@@ -46,7 +52,10 @@ class MovieController extends Controller
     {
         try {
             $movies = $this->movieRepository->getComingSoon();
-            return response()->json(MovieResource::collection($movies), 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => MovieResource::collection($movies)
+            ], 200);
         } catch (\Exception $ex) {
             Log::error('Error in MovieController@comingSoon: ' . $ex->getMessage());
             return response()->json([

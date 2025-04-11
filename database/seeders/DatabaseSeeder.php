@@ -23,12 +23,11 @@ class DatabaseSeeder extends Seeder
             ShowtimeSeeder::class,
         ]);
 
-
         User::create([
             'first_name' => 'Tú',
             'last_name' => 'Lê Đình',
             'email' => 'admin@gmail.com',
-            'password' => bcrypt('6451389'),
+            'password' => bcrypt('6451389Tu'),
             'phone' => '0865176605',
             'city_id' => 1,
             'role' => 'admin',
@@ -41,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'email' => "user$i@gmail.com",
                 'phone' => "012345678$i",
                 'city_id' => 1,
-                'password' => bcrypt('6451389'),
+                'password' => bcrypt('6451389Tu'),
             ]);
         }
     }

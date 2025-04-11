@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class LoginRequest extends FormRequest
 {
@@ -22,8 +23,16 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required'
+            'email' => [
+                'required',
+            ],
+            'password' => [
+                'required',
+                Password::min(8)
+                    ->letters()
+                    ->numbers()
+                    ->mixedCase()
+            ],
         ];
     }
     public function messages()
@@ -31,6 +40,7 @@ class LoginRequest extends FormRequest
         return [
             'email.required' => 'Email không được để trống',
             'email.email' => 'Email không đúng định dạng',
+            'email.unique' => 'Email đã tồn tại trong hệ thống',
             'password.required' => 'Mật khẩu không được để trống'
         ];
     }

@@ -23,7 +23,10 @@ class CityController extends Controller
         try {
             $cities = $this->cityRepository->all();
 
-            return response()->json(CityResource::collection($cities), 200);
+            return response()->json([
+                'status' => 'success',
+                'data' => CityResource::collection($cities)
+            ], 200);
         } catch (Exception $ex) {
             Log::error('Error in CityController@index: ' . $ex->getMessage());
             return response()->json([

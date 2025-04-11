@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Models\Movie;
+use App\Models\Room;
 
-class MovieRepository
+class RoomRepository
 {
     protected $model;
 
-    public function __construct(Movie $model)
+    public function __construct(Room $model)
     {
         $this->model = $model;
     }
@@ -30,10 +30,10 @@ class MovieRepository
 
     public function update($id, array $data)
     {
-        $movie = $this->model->findOrFail($id);
-        $movie->update($data);
+        $room = $this->model->findOrFail($id);
+        $room->update($data);
 
-        return $movie;
+        return $room;
     }
 
     public function delete($id)
