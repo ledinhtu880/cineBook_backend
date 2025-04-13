@@ -6,6 +6,7 @@ use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
 use App\Http\Controllers\Admin\AdminMovieController;
+use App\Http\Controllers\Admin\AdminShowtimeController;
 use App\Http\Controllers\Api\AdminRoomController;
 use App\Http\Controllers\Api\AdminUserController;
 #endregion
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 #endregion
 
 #region Auth Routes
-Route::prefix('auth')->controller(AuthController::class)->group(function () {
+Route::prefix('auth') ->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
     Route::post('/forgot-password', 'forgotPassword');
@@ -84,6 +85,7 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])
         Route::apiResource('users', AdminUserController::class);
         Route::apiResource('cinemas', AdminCinemaController::class);
         Route::apiResource('rooms', AdminRoomController::class);
+        Route::apiResource('showtimes', AdminShowtimeController::class);
 
         Route::prefix('cinemas')->controller(AdminCinemaController::class)->group(function () {
             Route::get('/{id}/rooms', 'getRooms');

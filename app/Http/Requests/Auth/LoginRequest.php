@@ -41,7 +41,11 @@ class LoginRequest extends FormRequest
             'email.required' => 'Email không được để trống',
             'email.email' => 'Email không đúng định dạng',
             'email.unique' => 'Email đã tồn tại trong hệ thống',
-            'password.required' => 'Mật khẩu không được để trống'
+            'password.required' => 'Mật khẩu không được để trống',
+            'password.min' => "Mật khẩu phải có ít nhất 8 ký tự",
+            'password.numbers' => "Mật khẩu phải có ít nhất 1 ký tự số",
+            'password.letters' => "Mật khẩu phải có ít nhất 1 ký tự chữ cái",
+            'password.mixed_case' => "Mật khẩu phải có ít nhất 1 ký tự viết hoa và 1 ký tự viết thường"
         ];
     }
 }

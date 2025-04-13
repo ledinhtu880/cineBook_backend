@@ -33,4 +33,9 @@ class Showtime extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class, 'genre_showtime', 'showtime_id', 'genre_id');
+    }
 }

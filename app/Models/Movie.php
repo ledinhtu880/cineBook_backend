@@ -19,11 +19,6 @@ class Movie extends Model
         'age_rating'
     ];
 
-    protected $appends = [
-        'genres',
-        'duration_label'
-    ];
-
     /**
      * Get the genres associated with the movie
      */
@@ -52,7 +47,7 @@ class Movie extends Model
     }
     public function getDurationLabelAttribute()
     {
-        return  $this->duration . ' phút';
+        return $this->duration . ' phút';
     }
     public function getReleaseDateLabelAttribute()
     {
@@ -61,7 +56,9 @@ class Movie extends Model
     protected function genresList(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $this->genres->pluck('name')->implode(', '),
+            get: fn() => $this->genres->pluck('name')->isEmpty()
+                ? "Chưa có thể loại"
+                : $this->genres->pluck('name')->implode(', '),
             set: fn($value) => $value
         );
     }
