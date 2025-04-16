@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Support\Str;
 use App\Models\Movie;
 
 class MovieRepository
@@ -48,5 +49,9 @@ class MovieRepository
     public function getComingSoon()
     {
         return $this->model->comingSoon()->get();
+    }
+    public function findBySlug(string $slug)
+    {
+        return Movie::where('slug', $slug)->firstOrFail();
     }
 }

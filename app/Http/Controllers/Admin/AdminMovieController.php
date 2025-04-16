@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Validation\ValidationException;
+use App\Http\Requests\Admin\Movie\MovieStoreRequest;
+use App\Http\Requests\Admin\Movie\MovieUpdateRequest;
 use App\Repositories\MovieRepository;
 use App\Http\Resources\MovieResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Movie;
 use Exception;
-use Illuminate\Support\Str;
 
 class AdminMovieController extends Controller
 {
@@ -37,18 +37,10 @@ class AdminMovieController extends Controller
             ], 500);
         }
     }
-    public function store(Request $request)
+    public function store(MovieStoreRequest $request)
     {
         try {
-            $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
-                'duration' => 'required|integer',
-                'release_date' => 'required|date',
-                'description' => 'required|string',
-                'poster_url' => 'required',
-                'trailer_url' => 'nullable|string|max:255',
-                'age_rating' => 'required|string|max:10',
-            ]);
+            $validatedData = $request->validated();
 
             // Kiểm tra và xử lý file
             if ($request->hasFile('poster_url')) {
@@ -65,12 +57,6 @@ class AdminMovieController extends Controller
                 'status' => 'success',
                 'message' => 'Tạo phim thành công'
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $ex) {
             Log::error('Error in AdminMovieController@store: ' . $ex->getMessage());
             return response()->json([
@@ -102,25 +88,13 @@ class AdminMovieController extends Controller
             ], 500);
         }
     }
-    public function update(Request $request, Movie $movie)
+    public function update(MovieUpdateRequest $request, Movie $movie)
     {
         try {
-            $keepExistingPoster = $request->input('keep_existing_poster');
+            $validatedData = $request->validated();
+            $keepExistingPoster = $request->input('keep_existing_poster', false);
 
-            $rules = [
-                'title' => 'required|string|max:255',
-                'duration' => 'required|integer',
-                'release_date' => 'required|date',
-                'description' => 'required|string',
-                'trailer_url' => 'nullable|string|max:255',
-                'age_rating' => 'required|string|max:10',
-            ];
-
-            $validatedData = $request->validate($rules);
-
-            // Nếu giữ poster cũ, loại bỏ trường poster_url khỏi dữ liệu cập nhật
             if ($keepExistingPoster) {
-                // Không cập nhật trường poster_url
                 unset($validatedData['poster_url']);
             } else if ($request->hasFile('poster_url')) {
                 $file = $request->file('poster_url');
@@ -129,19 +103,12 @@ class AdminMovieController extends Controller
                 $validatedData['poster_url'] = $path;
             }
 
-            // Cập nhật movie với dữ liệu đã xác thực
             $this->movieRepository->update($movie->id, $validatedData);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Cập nhật phim thành công'
             ], 200);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $ex) {
             Log::error('Error in AdminMovieController@update: ' . $ex->getMessage());
             return response()->json([

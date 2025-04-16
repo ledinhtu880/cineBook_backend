@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\Cinema\CinemaStoreRequest;
+use App\Http\Requests\Admin\Cinema\CinemaUpdateRequest;
+use App\Http\Requests\Admin\Room\RoomStoreRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
@@ -53,29 +56,16 @@ class AdminCinemaController extends Controller
             ], 500);
         }
     }
-    public function storeRoom(string $cinemaId, Request $request)
+    public function storeRoom(RoomStoreRequest $request, string $cinemaId)
     {
         try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'seat_rows' => 'required|integer',
-                'seat_columns' => 'required|integer',
-                'sweetbox_rows' => 'nullable|integer',
-            ]);
-
-            Log::info('Creating room with data: ', $validatedData);
+            $validatedData = $request->validated();
             $this->cinemaRepository->createRoom($cinemaId, $validatedData);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tạo phòng chiếu thành công'
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $ex) {
             Log::error('Error in AdminCinemaController@storeRoom: ' . $ex->getMessage());
             return response()->json([
@@ -84,15 +74,10 @@ class AdminCinemaController extends Controller
             ], 500);
         }
     }
-    public function store(Request $request)
+    public function store(CinemaStoreRequest $request)
     {
         try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'address' => 'required|string',
-                'city_id' => 'required|integer',
-                'phone' => 'required|string',
-            ]);
+            $validatedData = $request->validated();
 
             $this->cinemaRepository->create($validatedData);
 
@@ -100,12 +85,6 @@ class AdminCinemaController extends Controller
                 'status' => 'success',
                 'message' => 'Tạo rạp chiếu phim thành công'
             ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $ex) {
             Log::error('Error in AdminCinemaController@store: ' . $ex->getMessage());
             return response()->json([
@@ -137,31 +116,17 @@ class AdminCinemaController extends Controller
             ], 500);
         }
     }
-    public function update(Request $request, Cinema $cinema)
+    public function update(CinemaUpdateRequest $request, Cinema $cinema)
     {
         try {
-            $rules = [
-                'name' => 'required|string|max:255',
-                'address' => 'required|string',
-                'city_id' => 'required|integer',
-                'phone' => 'required|string',
-            ];
+            $validatedData = $request->validated();
 
-            $validatedData = $request->validate($rules);
-
-            // Cập nhật movie với dữ liệu đã xác thực
             $cinema->update($validatedData);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Cập nhật rạp chiếu phim thành công'
             ], 200);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
         } catch (Exception $ex) {
             Log::error('Error in AdminCinemaController@update: ' . $ex->getMessage());
             return response()->json([

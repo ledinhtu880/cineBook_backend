@@ -7,8 +7,8 @@ use App\Http\Middleware\AdminMiddleware;
 #region Admin Controller
 use App\Http\Controllers\Admin\AdminMovieController;
 use App\Http\Controllers\Admin\AdminShowtimeController;
-use App\Http\Controllers\Api\AdminRoomController;
-use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Admin\AdminRoomController;
+use App\Http\Controllers\Admin\AdminUserController;
 #endregion
 #region Auth Controller
 use App\Http\Controllers\Auth\AuthController;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 #endregion
 
 #region Auth Routes
-Route::prefix('auth') ->controller(AuthController::class)->group(function () {
+Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
     Route::post('/forgot-password', 'forgotPassword');
@@ -61,9 +61,9 @@ Route::prefix('auth') ->controller(AuthController::class)->group(function () {
 
 #region Public Routes
 Route::prefix('movies')->controller(MovieController::class)->group(function () {
-    Route::get('/now-showing', 'nowShowing');    // Phim đang chiếu
-    Route::get('/coming-soon', 'comingSoon');    // Phim sắp chiếu
-    Route::get('/{id}', 'show');                 // Chi tiết phim
+    Route::get('/now-showing', 'nowShowing');
+    Route::get('/coming-soon', 'comingSoon');
+    Route::get('/{slug}', 'show');
 });
 
 /* Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
@@ -80,24 +80,15 @@ Route::prefix('cities')->controller(CityController::class)->group(function () {
 Route::middleware(['auth:sanctum', AdminMiddleware::class])
     ->prefix('admin')
     ->group(function () {
-        // Movie Management
         Route::apiResource('movies', AdminMovieController::class);
-        Route::apiResource('users', AdminUserController::class);
+        Route::apiResource('users', AdminUserController::class)->except(['store', 'update', 'destroy']);
         Route::apiResource('cinemas', AdminCinemaController::class);
-        Route::apiResource('rooms', AdminRoomController::class);
+        Route::apiResource('rooms', AdminRoomController::class)->except(['store', 'update']);
         Route::apiResource('showtimes', AdminShowtimeController::class);
 
         Route::prefix('cinemas')->controller(AdminCinemaController::class)->group(function () {
             Route::get('/{id}/rooms', 'getRooms');
             Route::post('/{id}/rooms', 'storeRoom');
         });
-
-        // Booking Management
-        /* Route::prefix('bookings')->controller(AdminBookingController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::get('/statistics', 'statistics');  // Thống kê doanh thu
-            Route::get('/{id}', 'show');
-            Route::put('/{id}/status', 'updateStatus');
-        }); */
     });
 #endregion

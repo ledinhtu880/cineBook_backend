@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RoomResource;
@@ -13,7 +13,6 @@ use Exception;
 class AdminRoomController extends Controller
 {
     protected $roomRepository;
-
     public function __construct(RoomRepository $roomRepository)
     {
         $this->roomRepository = $roomRepository;
@@ -35,18 +34,6 @@ class AdminRoomController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Room $room)
     {
         try {
@@ -70,18 +57,6 @@ class AdminRoomController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Room $room)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         try {
@@ -92,11 +67,12 @@ class AdminRoomController extends Controller
                     'message' => 'Không tìm thấy phòng chiếu',
                 ], 404);
             }
+
             $this->roomRepository->delete($id);
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Xóa phim thành công'
+                'message' => 'Xóa phòng chiếu công'
             ], 201);
         } catch (Exception $ex) {
             Log::error('Error in AdminRoomController@destroy: ' . $ex->getMessage());

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Helpers\ImageHelper;
 use Carbon\Carbon;
 
@@ -61,6 +62,7 @@ class MovieSeeder extends Seeder
 
             $movieId = DB::table('movies')->insertGetId([
                 'title' => $movie['title'],
+                'slug' => Str::slug($movie['title']),
                 'description' => $movie['description'] ?? 'Chưa có mô tả',
                 'duration' => $movie['duration'] ?? 0,
                 'release_date' => $releaseDate,

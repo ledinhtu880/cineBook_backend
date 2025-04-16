@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Admin;
 
 use App\Repositories\UserRepository;
 use App\Http\Resources\UserResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use App\Models\User;
 
 class AdminUserController extends Controller
 {
     protected $userRepository;
-
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
@@ -34,18 +31,6 @@ class AdminUserController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         try {
@@ -69,21 +54,5 @@ class AdminUserController extends Controller
                 'message' => 'Failed to fetch user',
             ], 500);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

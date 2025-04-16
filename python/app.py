@@ -1,183 +1,292 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 import json
-import requests
 import sys
-import json
 import os
-from bs4 import BeautifulSoup # type: ignore
-from datetime import datetime, timedelta
-import re
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-urls = {
-    "now_showing": "https://moveek.com/dang-chieu/",
-    "coming_soon": "https://moveek.com/sap-chieu/"
-}
-
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
-}
-
-def get_movie_details(movie_url):
-    response = requests.get(movie_url, headers=headers)
-    if response.status_code != 200:
-        return {
-            "description": "Chưa có mô tả",
-            "duration": None,
-            "trailer_url": None,
-            "age_rating": "P",
-            "genres": []
-        }
-
-    soup = BeautifulSoup(response.text, "lxml")
-
-    # Mô tả phim
-    description_tag = soup.find("p", class_="mb-3 text-justify")
-    description = description_tag.get_text(strip=True) if description_tag else "Chưa có mô tả"
-
-    # Lấy thể loại phim
-    genre_tag = soup.find("p", class_="mb-0 text-muted text-truncate")
-    genres = []
-    if genre_tag:
-        genre_text = genre_tag.get_text(strip=True)
-        if "-" in genre_text:
-            genres = [g.strip() for g in genre_text.split("-")[1].split(",")]
-
-    # Trailer URL
-    trailer_tag = soup.find("a", {"data-video-url": True})
-    trailer_url = f"https://www.youtube.com/watch?v={trailer_tag['data-video-url']}" if trailer_tag else None
-
-    # Lấy thời lượng
-    duration = None
-    duration_tag = soup.find("span", string=lambda s: s and "phút" in s)
-    if duration_tag:
-        match = re.search(r"(\d+)", duration_tag.get_text(strip=True))
-        if match:
-            duration = int(match.group(1))
-
-    # Lấy giới hạn tuổi (sửa lỗi)
-    age_rating = "P"
+def get_movie_details(driver, detail_url):
+    """Lấy thông tin chi tiết của phim từ trang chi tiết"""
+    driver.get(detail_url)
+    time.sleep(10)  # Đợi trang tải
     
-    # Tìm tất cả các div column
-    col_divs = soup.find_all("div", class_="col text-center text-sm-left")
+    details = {}
     
-    for div in col_divs:
-        # Tìm strong tag trong div
-        strong_tag = div.find("strong")
-        if strong_tag:
-            # Tìm span trong strong
-            span_in_strong = strong_tag.find("span", class_="d-none d-sm-inline-block")
-            if span_in_strong and "Giới hạn tuổi" in span_in_strong.get_text(strip=True):
-                # Lấy span ngay sau thẻ <br>
-                br_tag = div.find("br")
-                if br_tag and br_tag.next_sibling and hasattr(br_tag.next_sibling, 'name') and br_tag.next_sibling.name == "span":
-                    age_rating = br_tag.next_sibling.get_text(strip=True)
-                    break
-                # Nếu không tìm được span sau br, tìm span bất kỳ trong div
-                else:
-                    span_tags = div.find_all("span")
-                    if len(span_tags) > 1:  # Nếu có nhiều hơn 1 span (span đầu tiên là "Giới hạn tuổi")
-                        age_rating = span_tags[-1].get_text(strip=True)  # Lấy span cuối cùng
-                        break
-                    
-    full_release_date = None
-    release_date_divs = soup.find_all("div", class_="col text-center text-sm-left")
-    for div in release_date_divs:
-        strong = div.find("strong")
-        if strong and strong.find("span", class_="d-none d-sm-inline-block", string="Khởi chiếu"):
-            span = div.find("span", recursive=False)  # Tìm span trực tiếp trong div
-            if span:
-                date_text = span.get_text(strip=True)
-                # Kiểm tra xem có định dạng ngày/tháng/năm không
-                if re.match(r'\d{2}/\d{2}/\d{4}', date_text):
-                    full_release_date = date_text
-                    break
-
-    return {
-        "description": description,
-        "duration": duration,
-        "trailer_url": trailer_url,
-        "age_rating": age_rating,
-        "genres": genres,
-        "full_release_date": full_release_date
-    }
-
-
-def get_movies(url, filter_release_date=False):
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print(json.dumps({"error": f"Không thể lấy dữ liệu từ {url}. Mã lỗi: {response.status_code}"}))
-        return []
-
-    soup = BeautifulSoup(response.text, "lxml")
-    movies = soup.find_all("div", class_="item")
-    movie_list = []
-
-    for movie in movies:
-        title_tag = movie.find("h3")
-        title = title_tag.get_text(strip=True) if title_tag else "Không có tiêu đề"
-
-        img_tag = movie.find("img")
-        poster_url = img_tag["data-src"] if img_tag and "data-src" in img_tag.attrs else "Không có poster"
-
-        if "no-poster.png" in poster_url:
-            continue
-
-        release_date_tag = movie.find("div", class_="col text-muted")
-        release_date_str = release_date_tag.get_text(strip=True) if release_date_tag else "Không có ngày phát hành"
-
-        # Thêm năm vào ngày phát hành
-        current_year = datetime.now().year
-        formatted_release_date = release_date_str
-        
+    try:
+        # Lấy backdrop Image (Image có alt là "Img Movie")
         try:
-            if release_date_str and "/" in release_date_str:
-                release_date = datetime.strptime(release_date_str, "%d/%m")
-                release_date = release_date.replace(year=current_year)
-                
-                # Nếu tháng phát hành < tháng hiện tại và chúng ta đang ở Q3/Q4, có thể đây là phim năm sau
-                if release_date.month < datetime.now().month and datetime.now().month > 9:
-                    release_date = release_date.replace(year=current_year + 1)
-                
-                formatted_release_date = release_date.strftime("%d/%m/%Y")
-        except ValueError:
-            formatted_release_date = "Không xác định"
-
-        if filter_release_date:
+            backdrop_img = driver.find_element(By.CSS_SELECTOR, "img[alt='Img Movie']")
+            details["backdrop_url"] = backdrop_img.get_attribute("src")
+        except Exception as e:
+            print(f"Không tìm thấy backdrop: {e}")
+            details["backdrop_url"] = None
+        
+        # Tên phim chính thức
+        try:
+            title_elem = driver.find_element(By.CSS_SELECTOR, "div.item__title h1")
+            details["official_title"] = title_elem.text
+        except Exception as e:
+            print(f"Không tìm thấy tên phim: {e}")
+        
+        # Thời lượng
+        try:
+            duration_elem = driver.find_element(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold span")
+            details["duration"] = duration_elem.text
+        except Exception as e:
+            print(f"Không tìm thấy thời lượng: {e}")
+        
+        # Ngày khởi chiếu
+        try:
+            release_date_elem = driver.find_elements(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold span")[1]
+            details["release_date"] = release_date_elem.text
+        except Exception as e:
+            print(f"Không tìm thấy ngày khởi chiếu: {e}")
+        
+        # Quốc gia
+        try:
+            country_elems = driver.find_elements(By.CSS_SELECTOR, "div.flex.flex-nowrap.text-sm")
+            for elem in country_elems:
+                if "Quốc gia:" in elem.text:
+                    country = elem.find_element(By.CSS_SELECTOR, "span:last-child").text
+                    details["country"] = country
+                    break
+        except Exception as e:
+            print(f"Không tìm thấy quốc gia: {e}")
+        
+        # Thể loại
+        try:
+            genre_links = driver.find_elements(By.CSS_SELECTOR, "div.flex.flex-nowrap.items-center a.text-black.inline-flex.h-8.border")
+            if genre_links:
+                genres = [link.text.strip() for link in genre_links if link.text.strip() and "/dien-anh/" in link.get_attribute("href")]
+                details["genres"] = genres
+        except Exception as e:
+            print(f"Không tìm thấy thể loại: {e}")
+        
+        # Nội dung phim / Mô tả
+        try:
+            description_elem = driver.find_element(By.CSS_SELECTOR, "div.block__wysiwyg")
+            details["description"] = description_elem.text
+        except Exception as e:
             try:
-                release_date = datetime.strptime(formatted_release_date, "%d/%m/%Y")
-                if release_date > datetime.now() + timedelta(days=14):
-                    continue
-            except ValueError:
-                continue
+                description_elem = driver.find_element(By.CSS_SELECTOR, "div.content__data__full")
+                details["description"] = description_elem.text
+            except Exception as e:
+                print(f"Không tìm thấy mô tả phim: {e}")
+                details["description"] = "Không có mô tả"
+        
+    except Exception as e:
+        print(f"Lỗi khi xử lý trang chi tiết: {e}")
+    
+    return details
 
-        movie_link_tag = title_tag.find("a") if title_tag else None
-        movie_url = "https://moveek.com" + movie_link_tag["href"] if movie_link_tag else None
+def get_trailer_url(movie_title):
+    """Tìm trailer URL cho một phim cụ thể"""
+    try:
+        # Tìm phim trên YouTube
+        search_term = f"{movie_title} trailer"
+        search_url = f"https://www.youtube.com/results?search_query={search_term.replace(' ', '+')}"
+        
+        # Tạo một driver mới để không ảnh hưởng đến quá trình chính
+        trailer_options = Options()
+        trailer_options.add_argument("--headless")
+        trailer_driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()),
+            options=trailer_options
+        )
+        
+        trailer_driver.get(search_url)
+        time.sleep(3)
+        
+        # Lấy video đầu tiên
+        video = trailer_driver.find_element(By.CSS_SELECTOR, "ytd-video-renderer a#video-title")
+        video_id = video.get_attribute("href").split("v=")[1].split("&")[0]
+        trailer_url = f"https://www.youtube.com/embed/{video_id}"
+        
+        trailer_driver.quit()
+        return trailer_url
+    except Exception as e:
+        print(f"Không thể tìm trailer cho {movie_title}: {e}")
+        return None
 
-        movie_details = get_movie_details(movie_url) if movie_url else {}
+def get_galaxy_movies_selenium(url):
+    # Thiết lập trình duyệt Chrome
+    options = Options()
+    options.add_argument("--headless")  # Chạy ngầm không mở trình duyệt
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")  # Đặt kích thước cửa sổ lớn hơn
+    
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=options
+    )    
+    # Tải trang
+    driver.get(url)
+    time.sleep(8)  # Đợi trang tải xong
+    
+    # Tìm các thẻ phim
+    movie_cards = driver.find_elements(By.CSS_SELECTOR, "div.Card_card__wrapper__RUTBs")
+    
+    movie_list = []
+    for index, card in enumerate(movie_cards[:3]):  
+        try:
+            print(f"Đang xử lý phim {index+1}/{len(movie_cards)}")
+            
+            # Tên phim
+            title = None
+            try:
+                title_elem = card.find_element(By.CSS_SELECTOR, "div.Card_card__title__kFoFc h3")
+                title = title_elem.text
+            except:
+                title = f"Không rõ tiêu đề {index+1}"
+            
+            # Poster
+            poster_url = None
+            detail_url = None
+            try:
+                poster_img = card.find_element(By.CSS_SELECTOR, "img.img__film")
+                poster_url = poster_img.get_attribute("src")
+                # Lấy alt text của poster nếu có
+                alt_text = poster_img.get_attribute("alt")
+                
+                if alt_text:
+                    base_url = "https://www.galaxycine.vn/dat-ve"
+                    detail_url = f"{base_url}/{alt_text}/"
+            except:
+                pass
+                
+            # Giới hạn độ tuổi
+            age_rating = "P"
+            try:
+                age_span = card.find_element(By.CSS_SELECTOR, "div.age__limit span")
+                age_rating = age_span.text
+            except:
+                pass
+                
+            # Điểm đánh giá
+            rating = None
+            try:
+                # Tìm div.votes -> p -> span.text-[18px]
+                votes_div = card.find_element(By.CSS_SELECTOR, "div.votes")
+                if votes_div:
+                    rating_span = votes_div.find_element(By.CSS_SELECTOR, "span.text-\\[18px\\]")
+                    rating = rating_span.text.strip() if rating_span else None
+            except Exception as e:
+                print(f"Không tìm thấy rating theo cách 1: {e}")
+                try:
+                    # Cách thứ hai - tìm trực tiếp dựa vào class
+                    rating_span = card.find_element(By.CSS_SELECTOR, "p span.text-\\[18px\\].font-bold.text-white")
+                    rating = rating_span.text.strip()
+                except Exception as e2:
+                    print(f"Không tìm thấy rating theo cách 2: {e2}")
+                    try:
+                        # Cách thứ ba - tìm tất cả span và lọc
+                        spans = card.find_elements(By.TAG_NAME, "span")
+                        for span in spans:
+                            try:
+                                if "font-bold" in span.get_attribute("class") and "text-white" in span.get_attribute("class"):
+                                    potential_rating = span.text.strip()
+                                    # Kiểm tra xem có phải là số không
+                                    if "." in potential_rating and potential_rating.replace(".", "", 1).isdigit():
+                                        rating = potential_rating
+                                        break
+                            except:
+                                continue
+                    except:
+                        pass
+                
+            # Có trailer hay không
+            has_trailer = False
+            try:
+                trailer_elems = card.find_elements(By.XPATH, ".//button[contains(., 'Trailer')]")
+                has_trailer = len(trailer_elems) > 0
+            except:
+                pass
+            
+            movie_data = {
+                "title": title,
+                "poster_url": poster_url,
+                "age_rating": age_rating,
+                "rating": rating,
+                "has_trailer": has_trailer,
+                "detail_url": detail_url
+            }
 
-        movie_list.append({
-            "title": title,
-            "poster_url": poster_url,
-            "release_date": formatted_release_date,
-            **movie_details
-        })
+            # Nếu phim có trailer, tìm URL trailer
+            if has_trailer:
+                try:
+                    # Sử dụng hàm get_trailer_url với title
+                    movie_data["trailer_url"] = get_trailer_url(title)
+                except Exception as e:
+                    print(f"Lỗi khi tìm trailer: {e}")
+                    movie_data["trailer_url"] = None
+            
 
+            # Nếu có URL chi tiết, truy cập để lấy thêm thông tin
+            if detail_url:
+                try:
+                    # Tạo một driver mới cho mỗi chi tiết phim
+                    detail_options = Options()
+                    detail_options.add_argument("--headless")
+                    detail_options.add_argument("--disable-gpu")
+                    detail_options.add_argument("--no-sandbox")
+                    detail_options.add_argument("--disable-dev-shm-usage")
+                    
+                    detail_driver = webdriver.Chrome(
+                        service=Service(ChromeDriverManager().install()),
+                        options=detail_options
+                    )
+                    
+                    # Lấy chi tiết phim
+                    try:
+                        additional_details = get_movie_details(detail_driver, detail_url)
+                        movie_data.update(additional_details)
+                    finally:
+                        # Đảm bảo đóng detail_driver ngay cả khi có lỗi
+                        detail_driver.quit()
+                        
+                except Exception as e:
+                    print(f"Lỗi khi lấy thông tin chi tiết: {e}")
+            
+            movie_list.append(movie_data)
+            print(f"Đã xử lý phim: {title}")
+        except Exception as e:
+            print(f"Lỗi khi xử lý phim: {e}")
+    
+    driver.quit()
     return movie_list
 
-now_showing_movies = get_movies(urls["now_showing"])
-coming_soon_movies = get_movies(urls["coming_soon"], filter_release_date=True)
+try:
+    # Chỉ lấy phim đang chiếu để tiết kiệm thời gian (bạn có thể bỏ comment để lấy cả phim sắp chiếu)
+    print("Đang lấy phim đang chiếu...")
+    galaxy_now_showing = get_galaxy_movies_selenium("https://www.galaxycine.vn/phim-dang-chieu/")
+    
+    # print("Đang lấy phim sắp chiếu...")
+    # galaxy_coming_soon = get_galaxy_movies_selenium("https://www.galaxycine.vn/phim-sap-chieu/")
+    galaxy_coming_soon = []  # Tạm thời không lấy để tiết kiệm thời gian
 
-all_movies = {
-    "now_showing": now_showing_movies,
-    "coming_soon": coming_soon_movies
-}
+    galaxy_movies = {
+        "now_showing": galaxy_now_showing,
+        "coming_soon": galaxy_coming_soon
+    }
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-json_path = os.path.join(script_dir, "movies.json")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, "movies.json")
 
-# Lưu dữ liệu vào JSON trong cùng thư mục với app.py
-with open(json_path, "w", encoding="utf-8") as f:
-    json.dump(all_movies, f, ensure_ascii=False, indent=4)
-
-print("Dữ liệu phim đã được lưu vào movies.json")
+    # Lưu dữ liệu vào JSON trong cùng thư mục với app.py
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(galaxy_movies, f, ensure_ascii=False, indent=4)
+    
+    # In số lượng phim đã lấy được
+    print(f"Tổng số phim đang chiếu: {len(galaxy_now_showing)}")
+    print(f"Tổng số phim sắp chiếu: {len(galaxy_coming_soon)}")
+except Exception as e:
+    print(f"Lỗi: {e}")

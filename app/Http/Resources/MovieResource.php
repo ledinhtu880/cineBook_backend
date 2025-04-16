@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Carbon\Carbon;
 
 class MovieResource extends JsonResource
 {
@@ -27,6 +26,7 @@ class MovieResource extends JsonResource
             'poster_url' => "http://localhost:8000/storage/" . $this->poster_url,
             'trailer_url' => $this->trailer_url,
             'age_rating' => $this->age_rating,
+            'slug' => $this->slug
         ];
     }
 }
