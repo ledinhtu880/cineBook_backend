@@ -27,6 +27,8 @@ class MovieResource extends JsonResource
             'poster_url' => "http://localhost:8000/" . $this->poster_url,
             'trailer_url' => $this->trailer_url,
             'age_rating' => $this->age_rating,
+            'rating' => $this->rating,
+            'country' => $this->country,
             'slug' => $this->slug
         ];
     }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Repositories\MovieRepository;
 use App\Http\Resources\MovieResource;
 use App\Http\Controllers\Controller;
+use App\Helpers\ApiHelper;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Exception;
 
 class MovieController extends Controller
@@ -17,10 +19,11 @@ class MovieController extends Controller
         $this->movieRepository = $movieRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $movies = $this->movieRepository->all();
+            $params = ApiHelper::getRequestParams(request());
+            $movies = $this->movieRepository->all($params);
 
             return response()->json([
                 'status' => 'success',
@@ -33,10 +36,11 @@ class MovieController extends Controller
             ], 500);
         }
     }
-    public function nowShowing()
+    public function nowShowing(Request $request)
     {
         try {
-            $movies = $this->movieRepository->getNowShowing();
+            $params = ApiHelper::getRequestParams($request);
+            $movies = $this->movieRepository->getNowShowing($params);
             return response()->json([
                 'status' => 'success',
                 'data' => MovieResource::collection($movies)
@@ -49,10 +53,11 @@ class MovieController extends Controller
         }
     }
 
-    public function comingSoon()
+    public function comingSoon(Request $request)
     {
         try {
-            $movies = $this->movieRepository->getComingSoon();
+            $params = ApiHelper::getRequestParams($request);
+            $movies = $this->movieRepository->getComingSoon($params);
             return response()->json([
                 'status' => 'success',
                 'data' => MovieResource::collection($movies)

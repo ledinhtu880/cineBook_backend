@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Support\Str;
+use App\Helpers\ApiHelper;
 use App\Models\Movie;
 
 class MovieRepository
@@ -14,9 +15,12 @@ class MovieRepository
         $this->model = $model;
     }
 
-    public function all()
+    public function all(array $params = [])
     {
-        return $this->model->all();
+        $query = $this->model->query();
+        $query = ApiHelper::applyFilters($query, $params);
+
+        return $query->get();
     }
 
     public function find($id)
@@ -41,14 +45,20 @@ class MovieRepository
     {
         return $this->model->destroy($id);
     }
-    public function getNowShowing()
+    public function getNowShowing(array $params = [])
     {
-        return $this->model->nowShowing()->get();
+        $query = $this->model->nowShowing();
+        $query = ApiHelper::applyFilters($query, $params);
+
+        return $query->get();
     }
 
-    public function getComingSoon()
+    public function getComingSoon(array $params = [])
     {
-        return $this->model->comingSoon()->get();
+        $query = $this->model->comingSoon();
+        $query = ApiHelper::applyFilters($query, $params);
+
+        return $query->get();
     }
     public function findBySlug(string $slug)
     {
