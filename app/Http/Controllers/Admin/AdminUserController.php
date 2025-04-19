@@ -27,7 +27,7 @@ class AdminUserController extends Controller
             Log::error('Error in AdminUserController@index: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch users',
+                'message' => 'Có lỗi xảy ra trong quá trình tải người dùng',
             ], 500);
         }
     }
@@ -51,7 +51,7 @@ class AdminUserController extends Controller
             Log::error('Error in AdminUserController@show: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch user',
+                'message' => 'Có lỗi xảy ra trong quá trình tải người dùng',
             ], 500);
         }
     }

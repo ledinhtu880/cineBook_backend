@@ -30,7 +30,7 @@ class CityController extends Controller
         } catch (Exception $ex) {
             Log::error('Error in CityController@index: ' . $ex->getMessage());
             return response()->json([
-                'message' => 'Failed to fetch cities',
+                'message' => 'Quá trình tải thành phố bị lỗi',
                 'error' => $ex->getMessage()
             ], 500);
         }

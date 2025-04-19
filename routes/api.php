@@ -1,10 +1,10 @@
 <?php
 
 #region Middleware
-use App\Http\Controllers\Admin\AdminCinemaController;
 use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
+use App\Http\Controllers\Admin\AdminCinemaController;
 use App\Http\Controllers\Admin\AdminMovieController;
 use App\Http\Controllers\Admin\AdminShowtimeController;
 use App\Http\Controllers\Admin\AdminRoomController;
@@ -60,20 +60,24 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 #endregion
 
 #region Public Routes
-Route::prefix('movies')->controller(MovieController::class)->group(function () {
-    Route::get('/now-showing', 'nowShowing');
-    Route::get('/coming-soon', 'comingSoon');
-    Route::get('/{slug}', 'show');
-});
+Route::middleware(['check.referer'])->group(
+    function () {
+        Route::prefix('movies')->controller(MovieController::class)->group(function () {
+            Route::get('/now-showing', 'nowShowing');
+            Route::get('/coming-soon', 'comingSoon');
+            Route::get('/{slug}', 'show');
+        });
 
-/* Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
-    Route::get('/{id}', 'show');                 // Chi tiết rạp
-    Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
-}); */
+        /* Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
+            Route::get('/{id}', 'show');                 // Chi tiết rạp
+            Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
+        }); */
 
-Route::prefix('cities')->controller(CityController::class)->group(function () {
-    Route::get('/', 'index');
-});
+        Route::prefix('cities')->controller(CityController::class)->group(function () {
+            Route::get('/', 'index');
+        });
+    }
+);
 #endregion
 
 #region Admin Routes

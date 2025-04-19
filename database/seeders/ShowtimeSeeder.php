@@ -16,10 +16,53 @@ class ShowtimeSeeder extends Seeder
         $rooms = DB::table('rooms')->get();
         $movies = DB::table('movies')->get();
         $today = Carbon::now()->startOfDay();
-
         $showtimeCount = 0;
-        $maxShowtimes = 1000;
+        $maxShowtimes = 2000;
 
+        // First, ensure each movie gets at least one showtime
+        foreach ($movies as $movie) {
+            if ($showtimeCount >= $maxShowtimes) break;
+
+            $hasShowtime = false;
+            $releaseDate = $movie->release_date
+                ? Carbon::parse($movie->release_date)->startOfDay()
+                : null;
+            $startDate = $releaseDate && $releaseDate->gt($today)
+                ? $releaseDate
+                : $today;
+
+            // Try to schedule this movie in any room
+            foreach ($rooms as $room) {
+                if ($hasShowtime) break;
+
+                for ($day = 0; $day < 7; $day++) { // Look up to 7 days ahead
+                    if ($hasShowtime) break;
+
+                    $currentDate = $startDate->copy()->addDays($day);
+                    $existingShowtimes = $this->getExistingShowtimes($room->id, $currentDate);
+                    $startTime = $this->getAvailableStartTime($existingShowtimes, $currentDate);
+
+                    if ($startTime) {
+                        $endTime = $startTime->copy()->addMinutes($movie->duration);
+
+                        DB::table('showtimes')->insert([
+                            'movie_id' => $movie->id,
+                            'cinema_id' => $room->cinema_id,
+                            'room_id' => $room->id,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        $showtimeCount++;
+                        $hasShowtime = true;
+                    }
+                }
+            }
+        }
+
+        // Then continue with the original loop to fill remaining slots
         foreach ($rooms as $room) {
             if ($showtimeCount >= $maxShowtimes) break;
 
@@ -29,7 +72,6 @@ class ShowtimeSeeder extends Seeder
                 $releaseDate = $movie->release_date
                     ? Carbon::parse($movie->release_date)->startOfDay()
                     : null;
-
                 $startDate = $releaseDate && $releaseDate->gt($today)
                     ? $releaseDate
                     : $today;
@@ -39,8 +81,8 @@ class ShowtimeSeeder extends Seeder
 
                     $currentDate = $startDate->copy()->addDays($day);
                     $existingShowtimes = $this->getExistingShowtimes($room->id, $currentDate);
-
                     $startTime = $this->getAvailableStartTime($existingShowtimes, $currentDate);
+
                     if (!$startTime) continue;
 
                     $endTime = $startTime->copy()->addMinutes($movie->duration);

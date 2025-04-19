@@ -32,7 +32,7 @@ class MovieController extends Controller
         } catch (Exception $ex) {
             Log::error('Error in MovieController@index: ' . $ex->getMessage());
             return response()->json([
-                'message' => 'Failed to fetch movies',
+                'message' => 'Có lỗi xảy ra trong quá trình phim',
             ], 500);
         }
     }
@@ -48,7 +48,7 @@ class MovieController extends Controller
         } catch (Exception $ex) {
             Log::error('Error in MovieController@nowShowing: ' . $ex->getMessage());
             return response()->json([
-                'message' => 'Failed to fetch now showing movies',
+                'message' => 'Có lỗi xảy ra trong quá trình phim đang chiếu',
             ], 500);
         }
     }
@@ -65,7 +65,7 @@ class MovieController extends Controller
         } catch (Exception $ex) {
             Log::error('Error in MovieController@comingSoon: ' . $ex->getMessage());
             return response()->json([
-                'message' => 'Failed to fetch coming soon movies',
+                'message' => 'Có lỗi xảy ra trong quá trình phim sắp chiếu',
             ], 500);
         }
     }
