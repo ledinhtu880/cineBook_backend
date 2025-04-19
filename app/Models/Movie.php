@@ -15,22 +15,16 @@ class Movie extends Model
         'description',
         'duration',
         'release_date',
+        'banner_url',
         'poster_url',
         'trailer_url',
         'age_rating'
     ];
 
-    /**
-     * Get the genres associated with the movie
-     */
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'movie_genres');
     }
-
-    /**
-     * Get all showtimes for this movie
-     */
     public function showtimes()
     {
         return $this->hasMany(Showtime::class);

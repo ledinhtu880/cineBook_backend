@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('6451389Tu'),
             'phone' => '0865176605',
             'city_id' => 1,
-            'role' => 'admin',
+            'role' => 1
         ]);
 
         for ($i = 0; $i <= 10; $i++) {

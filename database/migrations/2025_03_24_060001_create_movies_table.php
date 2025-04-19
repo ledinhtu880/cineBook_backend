@@ -16,11 +16,14 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description');
-            $table->integer('duration');
+            $table->integer('duration')->nullable();
             $table->date('release_date')->nullable();
-            $table->string('poster_url');
+            $table->string('banner_url')->nullable();
+            $table->string('poster_url')->nullable();
             $table->string('trailer_url')->nullable();
             $table->enum('age_rating', ['P', 'K', 'T13', 'T16', 'T18'])->default('P');
+            $table->string('country')->nullable();
+            $table->decimal('rating', 3, 1)->nullable();
             $table->timestamps();
         });
     }

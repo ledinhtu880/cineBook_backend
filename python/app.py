@@ -136,7 +136,7 @@ def get_galaxy_movies_selenium(url):
     movie_cards = driver.find_elements(By.CSS_SELECTOR, "div.Card_card__wrapper__RUTBs")
     
     movie_list = []
-    for index, card in enumerate(movie_cards[:3]):  
+    for index, card in enumerate(movie_cards):  
         try:
             print(f"Đang xử lý phim {index+1}/{len(movie_cards)}")
             
@@ -269,9 +269,8 @@ try:
     print("Đang lấy phim đang chiếu...")
     galaxy_now_showing = get_galaxy_movies_selenium("https://www.galaxycine.vn/phim-dang-chieu/")
     
-    # print("Đang lấy phim sắp chiếu...")
-    # galaxy_coming_soon = get_galaxy_movies_selenium("https://www.galaxycine.vn/phim-sap-chieu/")
-    galaxy_coming_soon = []  # Tạm thời không lấy để tiết kiệm thời gian
+    print("Đang lấy phim sắp chiếu...")
+    galaxy_coming_soon = get_galaxy_movies_selenium("https://www.galaxycine.vn/phim-sap-chieu/")
 
     galaxy_movies = {
         "now_showing": galaxy_now_showing,

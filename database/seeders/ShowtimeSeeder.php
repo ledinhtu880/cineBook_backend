@@ -13,60 +13,118 @@ class ShowtimeSeeder extends Seeder
      */
     public function run()
     {
-        $movies = DB::table('movies')->get();
         $rooms = DB::table('rooms')->get();
+        $movies = DB::table('movies')->get();
+        $today = Carbon::now()->startOfDay();
+
+        $showtimeCount = 0;
+        $maxShowtimes = 1000;
 
         foreach ($rooms as $room) {
-            $showtimes = [];
+            if ($showtimeCount >= $maxShowtimes) break;
 
-            for ($i = 0; $i < rand(2, 3); $i++) {
-                $movie = $movies->random();
+            foreach ($movies as $movie) {
+                if ($showtimeCount >= $maxShowtimes) break;
 
-                // Lấy ngày bắt đầu là max giữa ngày hiện tại và release_date
-                $startDate = Carbon::parse($movie->release_date)
-                    ->startOfDay()
-                    ->max(Carbon::now()->startOfDay());
+                $releaseDate = $movie->release_date
+                    ? Carbon::parse($movie->release_date)->startOfDay()
+                    : null;
 
-                // Random ngày chiếu trong 30 ngày tiếp theo
-                $date = $startDate->copy()->addDays(rand(0, 7));
+                $startDate = $releaseDate && $releaseDate->gt($today)
+                    ? $releaseDate
+                    : $today;
 
-                $startTime = $this->getAvailableStartTime($showtimes, $date);
-                if (!$startTime) continue;
+                for ($day = 0; $day < 3; $day++) {
+                    if ($showtimeCount >= $maxShowtimes) break;
 
-                $endTime = $startTime->copy()->addMinutes($movie->duration);
+                    $currentDate = $startDate->copy()->addDays($day);
+                    $existingShowtimes = $this->getExistingShowtimes($room->id, $currentDate);
 
-                // Kiểm tra thời gian kết thúc hợp lệ
-                if ($endTime->hour < 23 || ($endTime->hour == 23 && $endTime->minute <= 30)) {
-                    $showtimes[] = [
-                        'movie_id' => $movie->id,
-                        'cinema_id' => $room->cinema_id,
-                        'room_id' => $room->id,
-                        'start_time' => $startTime,
-                        'end_time' => $endTime,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                    $startTime = $this->getAvailableStartTime($existingShowtimes, $currentDate);
+                    if (!$startTime) continue;
+
+                    $endTime = $startTime->copy()->addMinutes($movie->duration);
+
+                    if ($startTime->hour < 23 || ($startTime->hour == 23 && $startTime->minute <= 30)) {
+                        DB::table('showtimes')->insert([
+                            'movie_id' => $movie->id,
+                            'cinema_id' => $room->cinema_id,
+                            'room_id' => $room->id,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        $showtimeCount++;
+                        $existingShowtimes[] = [
+                            'start_time' => $startTime,
+                            'end_time' => $endTime
+                        ];
+                    }
                 }
-            }
-
-            if (!empty($showtimes)) {
-                DB::table('showtimes')->insert($showtimes);
             }
         }
     }
 
-    private function getAvailableStartTime($showtimes, $date)
+    private function getExistingShowtimes($roomId, $date)
     {
-        $earliest = $date->copy()->addHours(9)->addMinutes(30); // 09:30
-        $latest = $date->copy()->addHours(23)->addMinutes(30); // 23:30
-        $existingTimes = collect($showtimes)->pluck('end_time');
+        $dateStart = $date->copy();
+        $dateEnd = $date->copy()->addDay();
 
-        while ($earliest < $latest) {
-            if ($existingTimes->every(fn($time) => $earliest->gte($time))) {
-                return $earliest;
+        $showtimes = DB::table('showtimes')
+            ->where('room_id', $roomId)
+            ->where('start_time', '>=', $dateStart)
+            ->where('start_time', '<', $dateEnd)
+            ->select('start_time', 'end_time')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'start_time' => Carbon::parse($item->start_time),
+                    'end_time' => Carbon::parse($item->end_time)
+                ];
+            })
+            ->toArray();
+
+        return $showtimes;
+    }
+
+    private function getAvailableStartTime($existingShowtimes, $date)
+    {
+        $timeSlots = [
+            $date->copy()->setTime(9, 30),   // 09:30
+            $date->copy()->setTime(12, 0),   // 12:00
+            $date->copy()->setTime(14, 30),  // 14:30
+            $date->copy()->setTime(17, 0),   // 17:00
+            $date->copy()->setTime(19, 30),  // 19:30
+            $date->copy()->setTime(21, 0),   // 21:00
+            $date->copy()->setTime(23, 0),   // 21:00
+        ];
+
+        // Kiểm tra từng khung giờ xem có khả dụng không
+        foreach ($timeSlots as $slot) {
+            $isAvailable = true;
+
+            foreach ($existingShowtimes as $existing) {
+                $existingStart = $existing['start_time'];
+                $existingEnd = $existing['end_time'];
+                $slotEnd = $slot->copy()->addMinutes(120);
+
+                if (
+                    ($slot >= $existingStart && $slot < $existingEnd) ||
+                    ($slotEnd > $existingStart && $slotEnd <= $existingEnd) ||
+                    ($slot <= $existingStart && $slotEnd >= $existingEnd)
+                ) {
+                    $isAvailable = false;
+                    break;
+                }
             }
-            $earliest->addMinutes(10); // Tăng lên bội số của 10
+
+            if ($isAvailable) {
+                return $slot;
+            }
         }
+
         return null;
     }
 }
