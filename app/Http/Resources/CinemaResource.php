@@ -19,6 +19,9 @@ class CinemaResource extends JsonResource
             'name' => $this->name,
             'address' => $this->address,
             'phone' => $this->phone,
+            'opening_hours' => $this->opening_hours,
+            'slug' => $this->slug,
+            'image' => "http://localhost:8000/" . $this->image
         ];
 
         if ($request->query('get-city')) {

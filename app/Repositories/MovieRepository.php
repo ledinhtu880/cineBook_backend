@@ -62,6 +62,6 @@ class MovieRepository
     }
     public function findBySlug(string $slug)
     {
-        return Movie::where('slug', $slug)->firstOrFail();
+        return $this->model->where('slug', $slug)->firstOrFail();
     }
 }

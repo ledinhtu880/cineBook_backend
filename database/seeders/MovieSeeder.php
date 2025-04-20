@@ -146,8 +146,6 @@ class MovieSeeder extends Seeder
                 }
             }
         }
-
-        Log::info('Đã import ' . count($movies) . ' phim từ file JSON');
     }
     private function downloadImageIfNotExists($url, $folder)
     {

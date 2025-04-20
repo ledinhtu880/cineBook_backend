@@ -32,4 +32,28 @@ class CinemaController extends Controller
             ], 500);
         }
     }
+    public function show(string $slug)
+    {
+        try {
+            $cinema = $this->cinemaRepository->findBySlug($slug);
+
+            if (!$cinema) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Rạp chiếu phim không tồn tại'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => new CinemaResource($cinema)
+            ]);
+        } catch (\Exception $ex) {
+            Log::error("Error in CinemaController@show: " . $ex->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra trong quá trình tải rạp chiếu phim'
+            ], 500);
+        }
+    }
 }

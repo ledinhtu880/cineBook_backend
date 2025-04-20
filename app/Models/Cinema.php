@@ -10,6 +10,8 @@ class Cinema extends Model
         'name',
         'address',
         'city_id',
+        'opening_hours',
+        'slug',
         'phone'
     ];
 

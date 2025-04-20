@@ -14,8 +14,9 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 #endregion
 #region Api Controllers
-use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\CinemaController;
 use App\Http\Controllers\Api\MovieController;
+use App\Http\Controllers\Api\CityController;
 use Illuminate\Support\Facades\Route;
 #endregion
 
@@ -68,10 +69,11 @@ Route::middleware(['check.referer'])->group(
             Route::get('/{slug}', 'show');
         });
 
-        /* Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
+        Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
             Route::get('/{id}', 'show');                 // Chi tiết rạp
             Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
-        }); */
+            Route::get('/{slug}', 'show');
+        });
 
         Route::prefix('cities')->controller(CityController::class)->group(function () {
             Route::get('/', 'index');
