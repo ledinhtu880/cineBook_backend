@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Repositories\CityRepository;
 use App\Http\Resources\CityResource;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use Exception;
 
 class CityController extends Controller
@@ -25,7 +24,7 @@ class CityController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => CityResource::collection($cities)
+                'data' => (CityResource::collection($cities))
             ], 200);
         } catch (Exception $ex) {
             Log::error('Error in CityController@index: ' . $ex->getMessage());

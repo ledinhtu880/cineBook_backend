@@ -14,16 +14,19 @@ class CinemaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'name' => $this->name,
             'address' => $this->address,
             'phone' => $this->phone,
-            'city_id' => $this->city_id,
-            'city' => [
-                'id' => $this->city->id,
-                'name' => $this->city->name
-            ],
         ];
+
+        if ($request->query('get-city')) {
+            $data = array_merge($data, [
+                'city' => new CityResource($this->city),
+            ]);
+        }
+
+        return $data;
     }
 }
