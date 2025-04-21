@@ -50,7 +50,7 @@ class AdminRoomController extends Controller
                 'data' => (new RoomResource($room))->withFullInfo()
             ], 200);
         } catch (Exception $ex) {
-            Log::error('Error in AdminMovieController@show: ' . $ex->getMessage());
+            Log::error('Error in AdminRoomController@show: ' . $ex->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Quá trình lấy phim xảy ra lỗi',

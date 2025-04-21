@@ -22,7 +22,7 @@ class MovieController extends Controller
     public function index(Request $request)
     {
         try {
-            $params = ApiHelper::getRequestParams(request());
+            $params = ApiHelper::getRequestParams($request);
             $movies = $this->movieRepository->all($params);
 
             return response()->json([

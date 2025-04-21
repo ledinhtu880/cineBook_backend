@@ -70,9 +70,9 @@ Route::middleware(['check.referer'])->group(
         });
 
         Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {
-            Route::get('/{id}', 'show');                 // Chi tiết rạp
-            Route::get('/{id}/showtimes', 'showtimes'); // Lịch chiếu của rạp
+            Route::get('/{id}', 'show');
             Route::get('/{slug}', 'show');
+            Route::get('/{slug}/showtimes', 'getShowtimesByDate');
         });
 
         Route::prefix('cities')->controller(CityController::class)->group(function () {

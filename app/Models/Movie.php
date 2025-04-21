@@ -52,8 +52,8 @@ class Movie extends Model
     {
         return Attribute::make(
             get: fn() => $this->genres->pluck('name')->isEmpty()
-                ? "Chưa có thể loại"
-                : $this->genres->pluck('name')->implode(', '),
+            ? "Chưa có thể loại"
+            : $this->genres->pluck('name')->implode(', '),
             set: fn($value) => $value
         );
     }

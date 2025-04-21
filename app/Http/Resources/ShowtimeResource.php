@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class ShowtimeResource extends JsonResource
 {
@@ -16,7 +15,7 @@ class ShowtimeResource extends JsonResource
                 'id' => $this->movie->id,
                 'title' => $this->movie->title,
                 'duration' => $this->movie->duration,
-                'poster' => "http://localhost:8000/storage/" . $this->movie->poster_url,
+                'poster' => "http://localhost:8000/" . $this->movie->poster_url,
             ],
             'room' => [
                 'id' => $this->room->id,
