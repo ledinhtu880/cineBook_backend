@@ -12,7 +12,8 @@ class ProductSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    { // Seed products
+    {
+        // Seed products
         $products = [
             [
                 "name" => "Bắp rang bơ",
@@ -42,11 +43,11 @@ class ProductSeeder extends Seeder
                 "updated_at" => now()
             ],
             [
-                "name" => "Coca Cola",
+                "name" => "Pepsi",
                 "description" => "Nước ngọt có ga sảng khoái",
                 "price" => 25000,
                 "category" => "beverage",
-                "image" => "coca.jpg",
+                "image" => "pepsi.jpg",
                 "created_at" => now(),
                 "updated_at" => now()
             ],
@@ -67,66 +68,209 @@ class ProductSeeder extends Seeder
                 "image" => "water.jpg",
                 "created_at" => now(),
                 "updated_at" => now()
+            ],
+            [
+                "name" => "Snack",
+                "description" => "Snack đa dạng, giòn rụm",
+                "price" => 35000,
+                "category" => "food",
+                "image" => "snack.jpg",
+                "created_at" => now(),
+                "updated_at" => now()
             ]
         ];
         DB::table('products')->insert($products);
 
-        // Seed product combos
-        $combo1 = DB::table('product_combos')->insertGetId([
-            "name" => "Combo bắp + nước",
-            "description" => "1 bắp rang bơ + 1 nước ngọt",
-            "price" => 70000,
-            "image" => "combo1.jpg",
-            "is_active" => true,
-            "created_at" => now(),
-            "updated_at" => now()
-        ]);
-        $combo2 = DB::table('product_combos')->insertGetId([
-            "name" => "Combo đặc biệt",
-            "description" => "1 bắp rang bơ + 2 nước + 1 xúc xích",
-            "price" => 120000,
-            "image" => "combo2.jpg",
-            "is_active" => true,
-            "created_at" => now(),
-            "updated_at" => now()
-        ]);
+        // Seed product combos from blade file
+        $combos = [
+            [
+                "name" => "Combo 1 Big",
+                "description" => "\"Thỏa mãn cơn thèm\" với 1 phần bắp rang bơ thơm ngon và 1 Pepsi mát lạnh!",
+                "price" => 89000,
+                "image" => "storage/products/combo_big.jpg",
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "name" => "Combo 1 Big Extra",
+                "description" => "\"Thỏa mãn cơn thèm\" với 1 phần bắp rang bơ thơm ngon, 1 Pepsi mát lạnh và 1 gói snack tuỳ chọn!",
+                "price" => 109000,
+                "image" => "storage/products/combo_big_extra.jpg",
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "name" => "Combo 2 Big",
+                "description" => "\"Nhân đôi sự sảng khoái! Combo 2 gồm 1 bắp rang bơ lớn, 2 Pepsi cỡ lớn – tiết kiệm hơn 28,000!",
+                "price" => 109000,
+                "image" => "storage/products/combo_2_big.jpg",
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "name" => "Combo 2 Big Extra",
+                "description" => "\"Nhân đôi sự sảng khoái! Combo 2 gồm 1 bắp rang bơ lớn, 2 Pepsi cỡ lớn + 1 snack tuỳ chọn– tiết kiệm hơn 33,000!",
+                "price" => 129000,
+                "image" => "storage/products/combo_2_big.jpg", // Using the same image as specified
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "name" => "Combo Friends 1 Big",
+                "description" => "\"Chia sẻ niềm vui với bạn bè! Friend Combo 1 gồm 1 bắp rang bơ, 3 Pepsi mát lạnh và 1 món snack tự chọn – tiết kiệm hơn 52,000!",
+                "price" => 149000,
+                "image" => "storage/products/combo_friends_1_big.jpg",
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "name" => "Combo Friends 2 Big",
+                "description" => "\"Thêm bạn, thêm vui! Friend Combo 2 mang đến 2 bắp rang bơ, 4 Pepsi mát lạnh và 2 món snack tự chọn – tiết kiệm hơn 95,000!",
+                "price" => 229000,
+                "image" => "storage/products/combo_friend_2_big.jpg",
+                "is_active" => true,
+                "created_at" => now(),
+                "updated_at" => now()
+            ]
+        ];
 
-        DB::table('product_combo_items')->insert([
+        $comboIds = [];
+        foreach ($combos as $combo) {
+            $comboIds[] = DB::table('product_combos')->insertGetId($combo);
+        }
+
+        // Define combo items for each combo
+        $comboItems = [
+            // Combo 1 Big
             [
-                "product_combo_id" => $combo1,
-                "product_id" => 1,
+                "product_combo_id" => $comboIds[0],
+                "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
                 "created_at" => now(),
                 "updated_at" => now()
             ],
             [
-                "product_combo_id" => $combo1,
-                "product_id" => 4,
+                "product_combo_id" => $comboIds[0],
+                "product_id" => 4, // Pepsi
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+
+            // Combo 1 Big Extra
+            [
+                "product_combo_id" => $comboIds[1],
+                "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
                 "created_at" => now(),
                 "updated_at" => now()
             ],
             [
-                "product_combo_id" => $combo2,
-                "product_id" => 1,
+                "product_combo_id" => $comboIds[1],
+                "product_id" => 4, // Pepsi
                 "quantity" => 1,
                 "created_at" => now(),
                 "updated_at" => now()
             ],
             [
-                "product_combo_id" => $combo2,
-                "product_id" => 4,
+                "product_combo_id" => $comboIds[1],
+                "product_id" => 7, // Snack
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+
+            // Combo 2 Big
+            [
+                "product_combo_id" => $comboIds[2],
+                "product_id" => 1, // Bắp rang bơ
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[2],
+                "product_id" => 4, // Pepsi
+                "quantity" => 2,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+
+            // Combo 2 Big Extra
+            [
+                "product_combo_id" => $comboIds[3],
+                "product_id" => 1, // Bắp rang bơ
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[3],
+                "product_id" => 4, // Pepsi
                 "quantity" => 2,
                 "created_at" => now(),
                 "updated_at" => now()
             ],
             [
-                "product_combo_id" => $combo2,
-                "product_id" => 2,
+                "product_combo_id" => $comboIds[3],
+                "product_id" => 7, // Snack
                 "quantity" => 1,
                 "created_at" => now(),
                 "updated_at" => now()
+            ],
+
+            // Combo Friends 1 Big
+            [
+                "product_combo_id" => $comboIds[4],
+                "product_id" => 1, // Bắp rang bơ
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[4],
+                "product_id" => 4, // Pepsi
+                "quantity" => 3,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[4],
+                "product_id" => 7, // Snack
+                "quantity" => 1,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+
+            // Combo Friends 2 Big
+            [
+                "product_combo_id" => $comboIds[5],
+                "product_id" => 1, // Bắp rang bơ
+                "quantity" => 2,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[5],
+                "product_id" => 4, // Pepsi
+                "quantity" => 4,
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "product_combo_id" => $comboIds[5],
+                "product_id" => 7, // Snack
+                "quantity" => 2,
+                "created_at" => now(),
+                "updated_at" => now()
             ]
-        ]);
+        ];
+
+        DB::table('product_combo_items')->insert($comboItems);
     }
 }

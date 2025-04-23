@@ -13,17 +13,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            CitySeeder::class,
-            CinemaSeeder::class,
-            GenreSeeder::class,
-            MovieSeeder::class,
-            RoomSeeder::class,
-            SeatSeeder::class,
+            // CitySeeder::class,
+            // CinemaSeeder::class,
+            // GenreSeeder::class,
+            // MovieSeeder::class,
+            // RoomSeeder::class,
+            // SeatSeeder::class,
             ProductSeeder::class,
-            ShowtimeSeeder::class,
+            // ShowtimeSeeder::class,
         ]);
 
-        User::create([
+        /* User::create([
             'first_name' => 'Tú',
             'last_name' => 'Lê Đình',
             'email' => 'admin@gmail.com',
@@ -78,6 +78,6 @@ class DatabaseSeeder extends Seeder
                     ]);
                 }
             }
-        }
+        } */
     }
 }
