@@ -23,4 +23,8 @@ class Cinema extends Model
     {
         return $this->belongsTo(City::class);
     }
+    public function seatPrices()
+    {
+        return $this->hasMany(SeatPrice::class);
+    }
 }

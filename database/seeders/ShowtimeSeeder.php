@@ -78,8 +78,6 @@ class ShowtimeSeeder extends Seeder
                                 'room_id' => $availableRoom->id,
                                 'start_time' => $timeSlot,
                                 'end_time' => $endTime,
-                                'created_at' => now(),
-                                'updated_at' => now(),
                             ]);
 
                             $showtimeCount++;

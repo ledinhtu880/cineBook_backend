@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Showtime;
 use App\Http\Resources\MovieResource;
 use Carbon\Carbon;
@@ -52,42 +53,109 @@ class ShowtimeRepository
             $query->where('cinema_id', $cinemaId);
         })
             ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
-            ->with(relations: ['room'])
+            ->with(['room.seats', 'movie']) // Make sure to eager load seats and movie
             ->orderBy('start_time', 'asc')
             ->get();
     }
     public function getGroupedByCinema($cinemaId)
     {
         $showtimes = $this->getByCinema($cinemaId);
-
         $groupedShowtimes = $showtimes->groupBy('movie_id');
 
         $result = [];
         foreach ($groupedShowtimes as $movieId => $movieShowtimes) {
             $movieData = (new MovieResource($movieShowtimes[0]->movie))->toArray(request());
 
-            $movieData['showtimes'] = $movieShowtimes->map(function ($showtime) {
-                $date = Carbon::parse($showtime->start_time)->format('Y-m-d');
-                $showtime->start_time = Carbon::parse($showtime->start_time)->format('H:i');
-                $showtime->end_time = Carbon::parse($showtime->end_time)->format('H:i');
+            $movieData['showtimes'] = $movieShowtimes->map(function ($showtime) use ($cinemaId) {
+                $date = Carbon::parse($showtime->start_time);
+                $formattedDate = $date->format('Y-m-d');
+
+                // Determine day type (weekday, weekend, holiday)
+                $dayType = $this->getDayType($date);
+
+                // Get price configuration for this cinema and day type
+                $prices = $this->getPricesForShowtime($cinemaId, $dayType);
 
                 return [
                     'id' => $showtime->id,
-                    'start_time' => $showtime->start_time,
-                    'end_time' => $showtime->end_time,
-                    'date' => $date,
+                    'start_time' => Carbon::parse($showtime->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($showtime->end_time)->format('H:i'),
+                    'date' => $formattedDate,
                     'room' => [
                         'name' => $showtime->room->name,
-                        'seats' => $showtime->room->seats
+                        'seats' => $showtime->room->seats->map(function ($seat) use ($prices) {
+                            return [
+                                'id' => $seat->id,
+                                'seat_code' => $seat->seat_code,
+                                'seat_type' => $seat->seat_type,
+                                'is_sweetbox' => $seat->is_sweetbox,
+                                'price' => $prices[$seat->seat_type] ?? 0,
+                            ];
+                        }),
                     ],
-                    'price' => $showtime->price,
                 ];
             })->values()->toArray();
-
 
             $result[] = $movieData;
         }
 
         return $result;
+    }
+
+
+    /**
+     * Determine if a date is a weekday, weekend or holiday
+     * 
+     * @param Carbon $date
+     * @return string
+     */
+    private function getDayType(Carbon $date)
+    {
+        // Check if it's a holiday (you would need a holiday table or API for this)
+        // This is a placeholder - implement your holiday check logic
+        if ($this->isHoliday($date)) {
+            return 'holiday';
+        }
+
+        // Check if it's a weekend (Saturday or Sunday)
+        if ($date->isWeekend()) {
+            return 'weekend';
+        }
+
+        // Otherwise it's a weekday
+        return 'weekday';
+    }
+
+    /**
+     * Check if a date is a holiday
+     * 
+     * @param Carbon $date
+     * @return bool
+     */
+    private function isHoliday(Carbon $date)
+    {
+        // Implement your holiday check logic here
+        // This could query a holidays table or use an API
+        // For now, we'll return false as a placeholder
+        return false;
+    }
+
+    /**
+     * Get prices for all seat types for a specific cinema and day type
+     * 
+     * @param int $cinemaId
+     * @param string $dayType
+     * @return array
+     */
+    private function getPricesForShowtime($cinemaId, $dayType)
+    {
+        $prices = DB::table('seat_prices')
+            ->where('cinema_id', $cinemaId)
+            ->where('day_type', $dayType)
+            ->get()
+            ->pluck('price', 'seat_type')
+            ->toArray();
+
+        return $prices;
     }
 }

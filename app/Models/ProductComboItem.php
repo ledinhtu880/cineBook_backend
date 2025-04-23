@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductComboItem extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'product_combo_id',
         'product_id',

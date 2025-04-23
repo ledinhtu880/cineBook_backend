@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookingDetail extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'booking_id',
         'seat_id',

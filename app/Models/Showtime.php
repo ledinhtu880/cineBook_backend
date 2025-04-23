@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Showtime extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'movie_id',
         'cinema_id',

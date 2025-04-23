@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookingCombo extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'booking_id',
         'product_combo_id',

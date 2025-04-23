@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId("product_combo_id")->constrained()->onDelete("cascade");
             $table->foreignId("product_id")->constrained()->onDelete("cascade");
             $table->integer("quantity")->default(1); // Số lượng của mỗi product trong combo
-            $table->timestamps();
         });
     }
 

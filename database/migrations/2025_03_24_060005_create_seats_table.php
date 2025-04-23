@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,7 +16,6 @@ return new class extends Migration
             $table->string('seat_code');
             $table->enum('seat_type', ['normal', 'vip', 'sweetbox'])->default('normal');
             $table->boolean('is_sweetbox')->default(false);
-            $table->timestamps();
         });
 
         Schema::create('seat_prices', function (Blueprint $table) {
@@ -26,10 +24,9 @@ return new class extends Migration
             $table->enum('seat_type', ['normal', 'vip', 'sweetbox'])->default('normal');
             $table->enum('day_type', ['weekday', 'weekend', 'holiday'])->default('weekday');
             $table->decimal('price', 10, 2);
-            $table->timestamps();
 
             // Composite unique key
-            $table->unique(['seat_type', 'cinema_id']);
+            $table->unique(['cinema_id', 'seat_type', 'day_type']);
         });
     }
     /**
