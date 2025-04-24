@@ -68,6 +68,7 @@ Route::middleware(['check.referer'])->group(
             Route::get('/now-showing', 'nowShowing');
             Route::get('/coming-soon', 'comingSoon');
             Route::get('/{slug}', 'show');
+            Route::get('/{id}/showtimes', 'getShowtimesById');
         });
 
         Route::prefix('cinemas')->controller(CinemaController::class)->group(function () {

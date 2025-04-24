@@ -44,6 +44,51 @@ class ShowtimeRepository
         return $this->model->destroy($id);
     }
 
+    public function getByMovie($movieId)
+    {
+        $startOfWeek = Carbon::parse(now());
+        $endOfWeek = Carbon::parse(now())->addDays(7)->endOfDay();
+        return $this->model->whereHas('movie', function ($query) use ($movieId) {
+            $query->where('movie_id', $movieId);
+        })
+            ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
+            ->with(['movie:id,title', 'room:id,name', 'room.seats', 'cinema:id,name'])
+            ->orderBy('start_time', 'asc')
+            ->get()->map(function ($showtime) {
+                $date = Carbon::parse($showtime->start_time);
+                $dayType = $this->getDayType($date);
+                $prices = $this->getPricesForShowtime($showtime->cinema->id, $dayType);
+
+                return [
+                    'id' => $showtime->id,
+                    'start_time' => $showtime->start_time,
+                    'end_time' => $showtime->start_time,
+                    'start_time_formatted' => $showtime->start_time_formatted,
+                    'end_time_formatted' => $showtime->end_time_formatted,
+                    'date' => $showtime->date,
+                    'room' => [
+                        'name' => $showtime->room->name,
+                        'seats' => $showtime->room->seats->map(function ($seat) use ($prices) {
+                            return [
+                                'id' => $seat->id,
+                                'seat_code' => $seat->seat_code,
+                                'seat_type' => $seat->seat_type,
+                                'is_sweetbox' => $seat->is_sweetbox,
+                                'price' => $prices[$seat->seat_type] ?? 0,
+                            ];
+                        }),
+                    ],
+                    'cinema' => [
+                        'id' => $showtime->cinema->id,
+                        'name' => $showtime->cinema->name
+                    ],
+                    'movie' => [
+                        'id' => $showtime->movie->id,
+                        'title' => $showtime->movie->title,
+                    ]
+                ];
+            });
+    }
     public function getByCinema($cinemaId)
     {
         $startOfWeek = Carbon::parse(now());
@@ -53,7 +98,7 @@ class ShowtimeRepository
             $query->where('cinema_id', $cinemaId);
         })
             ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
-            ->with(['room.seats', 'movie']) // Make sure to eager load seats and movie
+            ->with(['room.seats', 'movie'])
             ->orderBy('start_time', 'asc')
             ->get();
     }
@@ -63,24 +108,21 @@ class ShowtimeRepository
         $groupedShowtimes = $showtimes->groupBy('movie_id');
 
         $result = [];
-        foreach ($groupedShowtimes as $movieId => $movieShowtimes) {
+        foreach ($groupedShowtimes as $movieShowtimes) {
             $movieData = (new MovieResource($movieShowtimes[0]->movie))->toArray(request());
 
             $movieData['showtimes'] = $movieShowtimes->map(function ($showtime) use ($cinemaId) {
                 $date = Carbon::parse($showtime->start_time);
-                $formattedDate = $date->format('Y-m-d');
-
-                // Determine day type (weekday, weekend, holiday)
                 $dayType = $this->getDayType($date);
-
-                // Get price configuration for this cinema and day type
                 $prices = $this->getPricesForShowtime($cinemaId, $dayType);
 
                 return [
                     'id' => $showtime->id,
-                    'start_time' => Carbon::parse($showtime->start_time)->format('H:i'),
-                    'end_time' => Carbon::parse($showtime->end_time)->format('H:i'),
-                    'date' => $formattedDate,
+                    'start_time' => $showtime->start_time,
+                    'end_time' => $showtime->end_time,
+                    'start_time_formatted' => $showtime->start_time_formatted,
+                    'end_time_formatted' => $showtime->end_time_formatted,
+                    'date' => $showtime->date,
                     'room' => [
                         'name' => $showtime->room->name,
                         'seats' => $showtime->room->seats->map(function ($seat) use ($prices) {
@@ -101,8 +143,6 @@ class ShowtimeRepository
 
         return $result;
     }
-
-
     /**
      * Determine if a date is a weekday, weekend or holiday
      * 

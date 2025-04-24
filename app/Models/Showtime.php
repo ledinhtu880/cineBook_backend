@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Showtime extends Model
 {
@@ -38,5 +39,18 @@ class Showtime extends Model
     public function genres()
     {
         return $this->belongsToMany(Genre::class, 'genre_showtime', 'showtime_id', 'genre_id');
+    }
+
+    public function getStartTimeFormattedAttribute()
+    {
+        return Carbon::parse($this->start_time)->format('H:i');
+    }
+    public function getEndTimeFormattedAttribute()
+    {
+        return Carbon::parse($this->end_time)->format('H:i');
+    }
+    public function getDateAttribute()
+    {
+        return Carbon::parse($this->start_time)->format('d/m/Y');
     }
 }

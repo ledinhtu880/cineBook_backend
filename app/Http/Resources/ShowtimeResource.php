@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class ShowtimeResource extends JsonResource
 {
@@ -25,6 +26,9 @@ class ShowtimeResource extends JsonResource
             'time' => [
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
+                'start_time_formatted' => $this->start_time_formatted,
+                'end_time_formatted' => $this->end_time_formatted,
+                'date' => $this->date,
             ],
         ];
     }

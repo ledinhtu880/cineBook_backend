@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Repositories\MovieRepository;
+use App\Repositories\ShowtimeRepository;
 use App\Http\Resources\MovieResource;
 use App\Http\Controllers\Controller;
 use App\Helpers\ApiHelper;
@@ -13,10 +14,12 @@ use Exception;
 class MovieController extends Controller
 {
     protected $movieRepository;
+    protected $showtimeRepository;
 
-    public function __construct(MovieRepository $movieRepository)
+    public function __construct(MovieRepository $movieRepository, ShowtimeRepository $showtimeRepository)
     {
         $this->movieRepository = $movieRepository;
+        $this->showtimeRepository = $showtimeRepository;
     }
 
     public function index(Request $request)
@@ -90,6 +93,21 @@ class MovieController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Đã xảy ra lỗi khi lấy thông tin phim'
+            ], 500);
+        }
+    }
+    public function getShowtimesById(string $id)
+    {
+        try {
+            $showtimes = $this->showtimeRepository->getByMovie($id);
+
+            return response()->json(['data' => $showtimes]);
+
+        } catch (Exception $e) {
+            Log::error('Error in MovieController@getShowtimesById: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đã xảy ra lỗi khi lấy suất chiếu'
             ], 500);
         }
     }
