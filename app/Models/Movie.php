@@ -40,6 +40,12 @@ class Movie extends Model
     {
         return $query->where('release_date', '>', now());
     }
+    public function getIsNowShowingAttribute(): bool
+    {
+        $hasFutureShowtimes = $this->showtimes()->where('start_time', '>=', now())->exists();
+
+        return $hasFutureShowtimes;
+    }
     public function getDurationLabelAttribute()
     {
         return $this->duration . ' phút';
@@ -47,6 +53,14 @@ class Movie extends Model
     public function getReleaseDateLabelAttribute()
     {
         return Carbon::parse($this->release_date)->format('d/m/Y');
+    }
+    public function getPosterUrlLabelAttribute(): ?string
+    {
+        return $this->poster_url ? asset($this->poster_url) : null;
+    }
+    public function getBannerUrlLabelAttribute(): ?string
+    {
+        return $this->banner_url ? asset($this->banner_url) : null;
     }
     protected function genresList(): Attribute
     {

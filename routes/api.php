@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Api\CinemaController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\ProductComboController;
 use Illuminate\Support\Facades\Route;
 #endregion
 
@@ -76,6 +77,10 @@ Route::middleware(['check.referer'])->group(
         });
 
         Route::prefix('cities')->controller(CityController::class)->group(function () {
+            Route::get('/', 'index');
+        });
+
+        Route::prefix('combos')->controller(ProductComboController::class)->group(function () {
             Route::get('/', 'index');
         });
     }

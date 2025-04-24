@@ -23,13 +23,14 @@ class MovieResource extends JsonResource
             'genres' => $this->genres_list,
             'release_date' => $this->release_date,
             'release_date_label' => $this->release_date_label,
-            'banner_url' => "http://localhost:8000/" . $this->banner_url,
-            'poster_url' => "http://localhost:8000/" . $this->poster_url,
+            'banner_url' => $this->banner_url_label,
+            'poster_url' => $this->poster_url_label,
             'trailer_url' => $this->trailer_url,
             'age_rating' => $this->age_rating,
             'rating' => $this->rating,
             'country' => $this->country,
-            'slug' => $this->slug
+            'slug' => $this->slug,
+            'is_now_showing' => $this->is_now_showing
         ];
     }
 }

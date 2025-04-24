@@ -46,6 +46,6 @@ class ProductComboItem extends Model
      */
     public function getFormattedTotalPriceAttribute(): string
     {
-        return number_format($this->total_price, 0, ',', '.') . ' đ';
+        return number_format($this->total_price, 0, ',', '.') . ' VND';
     }
 }
