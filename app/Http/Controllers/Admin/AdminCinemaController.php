@@ -100,7 +100,7 @@ class AdminCinemaController extends Controller
             if (!$cinema) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Movie not found',
+                    'message' => 'Không tìm thấy rạp chiếu phim',
                 ], 404);
             }
 
@@ -142,7 +142,7 @@ class AdminCinemaController extends Controller
             if (!$cinema) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Movie not found',
+                    'message' => 'Không tìm thấy rạp chiếu phim',
                 ], 404);
             }
             $this->cinemaRepository->delete($id);

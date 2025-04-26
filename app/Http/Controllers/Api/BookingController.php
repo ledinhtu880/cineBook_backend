@@ -24,7 +24,7 @@ class BookingController extends Controller
             $this->bookingRepository->create($data);
 
             return response()->json([
-                'success' => true,
+                'status' => 'success',
                 'message' => 'Đặt vé thành công',
             ], 201);
         } catch (Exception $e) {

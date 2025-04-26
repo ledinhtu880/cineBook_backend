@@ -132,7 +132,7 @@ class AdminMovieController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa phim thành công'
-            ], 201);
+            ], 204);
         } catch (Exception $ex) {
             Log::error('Error in AdminMovieController@destroy: ' . $ex->getMessage());
             return response()->json([

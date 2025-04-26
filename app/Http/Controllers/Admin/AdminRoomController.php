@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\RoomResource;
 use App\Repositories\RoomRepository;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use App\Models\Room;
 use Exception;
 
@@ -73,7 +72,7 @@ class AdminRoomController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Xóa phòng chiếu công'
-            ], 201);
+            ], 204);
         } catch (Exception $ex) {
             Log::error('Error in AdminRoomController@destroy: ' . $ex->getMessage());
             return response()->json([
