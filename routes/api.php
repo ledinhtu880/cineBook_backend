@@ -1,6 +1,7 @@
 <?php
 
 #region Middleware
+use App\Http\Controllers\Api\BookingController;
 use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
@@ -36,29 +37,29 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 #endregion
 
 #region User Routes (Required Authentication)
-/* Route::middleware('auth:sanctum')->group(function () {
-    // Profile Management
+Route::middleware('auth:sanctum')->group(function () {
+    /* // Profile Management
     Route::prefix('profile')->controller(ProfileController::class)->group(function () {
         Route::get('/', 'show');
         Route::put('/', 'update');
         Route::put('/password', 'updatePassword');
-    });
+    }); */
 
     // Booking Management
     Route::prefix('bookings')->controller(BookingController::class)->group(function () {
-        Route::get('/', 'index');                // Lịch sử đặt vé
-        Route::post('/', 'store');               // Đặt vé mới
-        Route::get('/{id}', 'show');            // Chi tiết đặt vé
-        Route::delete('/{id}', 'cancel');       // Hủy vé (nếu cho phép)
+        Route::post('/', 'store');
+        // Route::get('/', 'index');
+        // Route::get('/{id}', 'show');
+        // Route::delete('/{id}', 'cancel');
     });
 
-    // Reviews & Ratings
+    /* // Reviews & Ratings
     Route::prefix('reviews')->controller(ReviewController::class)->group(function () {
         Route::post('/', 'store');              // Thêm đánh giá
         Route::put('/{id}', 'update');         // Sửa đánh giá
         Route::delete('/{id}', 'destroy');     // Xóa đánh giá
-    });
-}); */
+    }); */
+});
 #endregion
 
 #region Public Routes

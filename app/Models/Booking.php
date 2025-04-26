@@ -8,7 +8,7 @@ class Booking extends Model
 {
     protected $fillable = [
         'user_id',
-        'show_time_id',
+        'showtime_id',
         'total_price',
         'payment_status'
     ];
