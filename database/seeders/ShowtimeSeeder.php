@@ -17,7 +17,7 @@ class ShowtimeSeeder extends Seeder
         $movies = DB::table('movies')->get()->toArray();
         $today = Carbon::now()->startOfDay();
         $showtimeCount = 0;
-        $maxShowtimes = 2000;
+        $maxShowtimes = 5000;
 
         // Tạo lịch chiếu cho 7 ngày tới
         for ($day = 0; $day < 7; $day++) {
@@ -34,58 +34,135 @@ class ShowtimeSeeder extends Seeder
 
             // Xử lý từng rạp
             foreach ($cinemaRooms as $cinemaId => $cinemaRooms) {
-                // Chọn một số phim cho rạp này hôm nay (60-80% tổng số phim)
-                shuffle($movies);
-                $moviesForCinema = array_slice($movies, 0, ceil(count($movies) * (rand(60, 80) / 100)));
-
-                // Tạo lịch chiếu cho mỗi phim
-                foreach ($moviesForCinema as $movie) {
-                    if ($showtimeCount >= $maxShowtimes)
-                        break;
-
-                    // Kiểm tra ngày phát hành của phim
+                // Lọc phim hợp lệ (đã phát hành)
+                $availableMovies = array_filter($movies, function ($movie) use ($currentDate) {
                     $releaseDate = $movie->release_date
                         ? Carbon::parse($movie->release_date)->startOfDay()
                         : null;
 
-                    // Nếu phim chưa phát hành, bỏ qua
-                    if ($releaseDate && $releaseDate->gt($currentDate)) {
-                        continue;
+                    return !$releaseDate || !$releaseDate->gt($currentDate);
+                });
+
+                // Đảm bảo mỗi bộ phim đều có ít nhất một suất chiếu trong ngày
+                foreach ($availableMovies as $movie) {
+                    if ($showtimeCount >= $maxShowtimes)
+                        break;
+
+                    // Tạo một suất chiếu cố định cho phim này
+                    $timeSlot = $this->generatePrimeTimeSlot($currentDate, $movie->duration);
+
+                    // Tìm phòng trống cho suất chiếu này
+                    $availableRoom = $this->findAvailableRoom($cinemaRooms, $timeSlot, $movie->duration);
+
+                    // Nếu không tìm được phòng trống trong giờ đẹp, thử giờ khác
+                    if (!$availableRoom) {
+                        // Thử tối đa 5 khung giờ khác nhau
+                        for ($attempt = 0; $attempt < 5; $attempt++) {
+                            $timeSlot = $this->generateRandomTimeSlot($currentDate, $movie->duration);
+                            $availableRoom = $this->findAvailableRoom($cinemaRooms, $timeSlot, $movie->duration);
+                            if ($availableRoom)
+                                break;
+                        }
                     }
 
-                    // Số suất chiếu cho phim này trong ngày (1-4 suất tùy theo độ hot)
-                    $numberOfShowtimes = rand(1, 4);
+                    if ($availableRoom) {
+                        // Tính thời gian kết thúc
+                        $endTime = $timeSlot->copy()->addMinutes($movie->duration);
 
-                    // Tạo khung giờ linh động cho phim
-                    $movieTimeSlots = $this->generateTimeSlots($currentDate, $movie->duration, $numberOfShowtimes);
+                        // Thêm suất chiếu
+                        DB::table('showtimes')->insert([
+                            'movie_id' => $movie->id,
+                            'cinema_id' => $cinemaId,
+                            'room_id' => $availableRoom->id,
+                            'start_time' => $timeSlot,
+                            'end_time' => $endTime,
+                        ]);
 
-                    // Duyệt qua các khung giờ của phim
-                    foreach ($movieTimeSlots as $timeSlot) {
+                        $showtimeCount++;
+                    }
+                }
+
+                // Thêm các suất chiếu ngẫu nhiên nếu còn dưới giới hạn
+                if ($showtimeCount < $maxShowtimes) {
+                    // Chọn ngẫu nhiên các phim cho các suất bổ sung (60-80% tổng số phim)
+                    shuffle($availableMovies);
+                    $moviesForExtraShowtimes = array_slice($availableMovies, 0, ceil(count($availableMovies) * (rand(60, 80) / 100)));
+
+                    // Tạo thêm suất chiếu cho các phim được chọn
+                    foreach ($moviesForExtraShowtimes as $movie) {
                         if ($showtimeCount >= $maxShowtimes)
                             break;
 
-                        // Tìm phòng trống cho suất chiếu này
-                        $availableRoom = $this->findAvailableRoom($cinemaRooms, $timeSlot, $movie->duration);
+                        // Số suất chiếu bổ sung cho phim này (0-3 suất)
+                        $additionalShowtimes = rand(0, 3);
 
-                        if ($availableRoom) {
-                            // Tính thời gian kết thúc
-                            $endTime = $timeSlot->copy()->addMinutes($movie->duration);
+                        if ($additionalShowtimes > 0) {
+                            // Tạo các khung giờ bổ sung
+                            $extraTimeSlots = $this->generateTimeSlots($currentDate, $movie->duration, $additionalShowtimes);
 
-                            // Thêm suất chiếu
-                            DB::table('showtimes')->insert([
-                                'movie_id' => $movie->id,
-                                'cinema_id' => $cinemaId,
-                                'room_id' => $availableRoom->id,
-                                'start_time' => $timeSlot,
-                                'end_time' => $endTime,
-                            ]);
+                            foreach ($extraTimeSlots as $timeSlot) {
+                                if ($showtimeCount >= $maxShowtimes)
+                                    break;
 
-                            $showtimeCount++;
+                                $availableRoom = $this->findAvailableRoom($cinemaRooms, $timeSlot, $movie->duration);
+
+                                if ($availableRoom) {
+                                    $endTime = $timeSlot->copy()->addMinutes($movie->duration);
+
+                                    DB::table('showtimes')->insert([
+                                        'movie_id' => $movie->id,
+                                        'cinema_id' => $cinemaId,
+                                        'room_id' => $availableRoom->id,
+                                        'start_time' => $timeSlot,
+                                        'end_time' => $endTime,
+                                    ]);
+
+                                    $showtimeCount++;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Tạo khung giờ đẹp cho suất chiếu (prime time - buổi tối)
+     */
+    private function generatePrimeTimeSlot($date, $duration)
+    {
+        // Prime time thường là 18:00 - 21:00
+        $hour = rand(18, 20);
+        $minute = [0, 15, 30, 45][rand(0, 3)];
+
+        return $date->copy()->setTime($hour, $minute);
+    }
+
+    /**
+     * Tạo một khung giờ ngẫu nhiên trong ngày
+     */
+    private function generateRandomTimeSlot($date, $duration)
+    {
+        $operatingHours = [
+            'start' => 9,  // 9:00 AM
+            'end' => 22,   // 10:00 PM (để đủ thời gian cho phim kết thúc trước 23:00)
+        ];
+
+        $availableMinutes = ($operatingHours['end'] - $operatingHours['start']) * 60;
+        $randomMinutes = rand(0, $availableMinutes);
+
+        $hour = $operatingHours['start'] + floor($randomMinutes / 60);
+        $minute = $randomMinutes % 60;
+
+        // Làm tròn phút cho dễ nhìn (0, 15, 30, 45)
+        $minute = round($minute / 15) * 15;
+        if ($minute == 60) {
+            $hour++;
+            $minute = 0;
+        }
+
+        return $date->copy()->setTime($hour, $minute);
     }
 
     /**

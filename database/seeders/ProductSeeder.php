@@ -89,8 +89,6 @@ class ProductSeeder extends Seeder
                 "price" => 89000,
                 "image" => "storage/products/combo_big.jpg",
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "name" => "Combo 1 Big Extra",
@@ -98,8 +96,6 @@ class ProductSeeder extends Seeder
                 "price" => 109000,
                 "image" => "storage/products/combo_big_extra.jpg",
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "name" => "Combo 2 Big",
@@ -107,8 +103,6 @@ class ProductSeeder extends Seeder
                 "price" => 109000,
                 "image" => "storage/products/combo_2_big.jpg",
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "name" => "Combo 2 Big Extra",
@@ -116,8 +110,6 @@ class ProductSeeder extends Seeder
                 "price" => 129000,
                 "image" => "storage/products/combo_2_big.jpg", // Using the same image as specified
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "name" => "Combo Friends 1 Big",
@@ -125,8 +117,6 @@ class ProductSeeder extends Seeder
                 "price" => 149000,
                 "image" => "storage/products/combo_friends_1_big.jpg",
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "name" => "Combo Friends 2 Big",
@@ -134,8 +124,6 @@ class ProductSeeder extends Seeder
                 "price" => 229000,
                 "image" => "storage/products/combo_friend_2_big.jpg",
                 "is_active" => true,
-                "created_at" => now(),
-                "updated_at" => now()
             ]
         ];
 
@@ -151,15 +139,11 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[0],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[0],
                 "product_id" => 4, // Pepsi
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
 
             // Combo 1 Big Extra
@@ -167,22 +151,16 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[1],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[1],
                 "product_id" => 4, // Pepsi
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[1],
                 "product_id" => 7, // Snack
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
 
             // Combo 2 Big
@@ -190,15 +168,11 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[2],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[2],
                 "product_id" => 4, // Pepsi
                 "quantity" => 2,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
 
             // Combo 2 Big Extra
@@ -206,22 +180,16 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[3],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[3],
                 "product_id" => 4, // Pepsi
                 "quantity" => 2,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[3],
                 "product_id" => 7, // Snack
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
 
             // Combo Friends 1 Big
@@ -229,22 +197,16 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[4],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[4],
                 "product_id" => 4, // Pepsi
                 "quantity" => 3,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[4],
                 "product_id" => 7, // Snack
                 "quantity" => 1,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
 
             // Combo Friends 2 Big
@@ -252,22 +214,16 @@ class ProductSeeder extends Seeder
                 "product_combo_id" => $comboIds[5],
                 "product_id" => 1, // Bắp rang bơ
                 "quantity" => 2,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[5],
                 "product_id" => 4, // Pepsi
                 "quantity" => 4,
-                "created_at" => now(),
-                "updated_at" => now()
             ],
             [
                 "product_combo_id" => $comboIds[5],
                 "product_id" => 7, // Snack
                 "quantity" => 2,
-                "created_at" => now(),
-                "updated_at" => now()
             ]
         ];
 
