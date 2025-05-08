@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\Booking;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\BookingDetail;
 use App\Models\BookingCombo;
-use Illuminate\Support\Facades\DB;
+use App\Models\Booking;
 
 class BookingRepository
 {
@@ -19,14 +20,20 @@ class BookingRepository
         $this->bookingDetail = $bookingDetail;
         $this->bookingCombo = $bookingCombo;
     }
+    public function find(string $id)
+    {
+        return $this->booking->findOrFail($id);
+    }
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
+
             $booking = $this->booking->create([
+                'code' => $this->generateBookingCode(),
                 'user_id' => $data['user_id'],
                 'showtime_id' => $data['showtime_id'],
                 'total_price' => $data['total_amount'],
-                // 'payment_method' => $data['payment_method'],
+                'payment_method' => $data['payment_method'],
                 'payment_status' => 'unpaid',
             ]);
 
@@ -55,5 +62,22 @@ class BookingRepository
 
             return $booking;
         });
+    }
+    public function update(string $id)
+    {
+        return DB::transaction(function () use ($id) {
+            $booking = $this->find($id);
+            $booking->update([
+                'payment_status' => 'paid',
+            ]);
+            return $booking;
+        });
+    }
+    protected function generateBookingCode()
+    {
+        $date = now()->format('ymd');
+        $randomString = strtoupper(Str::random(5));
+
+        return "BK-{$date}-{$randomString}";
     }
 }

@@ -30,24 +30,44 @@ def get_movie_details(driver, detail_url):
         
         # Tên phim chính thức
         try:
-            title_elem = driver.find_element(By.CSS_SELECTOR, "div.item__title h1")
+            title_elem = driver.find_element(By.CSS_SELECTOR, "div.item__title.flex.items-center h1")
             details["official_title"] = title_elem.text
         except Exception as e:
             print(f"Không tìm thấy tên phim: {e}")
         
         # Thời lượng
         try:
-            duration_elem = driver.find_element(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold span")
-            details["duration"] = duration_elem.text
+            # Tìm tất cả div chứa SVG và span
+            time_divs = driver.find_elements(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold.not-italic")
+            
+            for div in time_divs:
+                # Kiểm tra có SVG đồng hồ không (path có "M7 0C3.13306")
+                svg_paths = div.find_elements(By.TAG_NAME, "path")
+                for path in svg_paths:
+                    if "M7 0C3.13306" in path.get_attribute("d"):
+                        # Nếu tìm thấy SVG đồng hồ, lấy text từ span
+                        duration = div.find_element(By.TAG_NAME, "span").text
+                        details["duration"] = duration
+                        break
         except Exception as e:
-            print(f"Không tìm thấy thời lượng: {e}")
+            print(f"Không tìm thấy thời lượng theo cách mới: {e}")
         
         # Ngày khởi chiếu
         try:
-            release_date_elem = driver.find_elements(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold span")[1]
-            details["release_date"] = release_date_elem.text
+            # Tìm div chứa text ngày
+            release_divs = driver.find_elements(By.CSS_SELECTOR, "div.text-sm.flex.items-center.font-semibold.not-italic")
+            
+            for div in release_divs:
+                # Kiểm tra có SVG lịch không (path có "M10.7143")
+                svg_paths = div.find_elements(By.TAG_NAME, "path")
+                for path in svg_paths:
+                    if "M10.7143" in path.get_attribute("d"):
+                        # Nếu tìm thấy SVG lịch, lấy text từ span
+                        release_date = div.find_element(By.TAG_NAME, "span").text
+                        details["release_date"] = release_date
+                        break
         except Exception as e:
-            print(f"Không tìm thấy ngày khởi chiếu: {e}")
+            print(f"Không tìm thấy ngày khởi chiếu theo cách mới: {e}")
         
         # Quốc gia
         try:
@@ -137,6 +157,9 @@ def get_galaxy_movies_selenium(url):
     
     movie_list = []
     for index, card in enumerate(movie_cards):  
+        if(index > 5):
+            continue
+
         try:
             print(f"Đang xử lý phim {index+1}/{len(movie_cards)}")
             

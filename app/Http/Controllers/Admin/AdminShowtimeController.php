@@ -52,9 +52,20 @@ class AdminShowtimeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Showtime $showtime)
+    public function show(string $id)
     {
-        //
+        try {
+            $showtime = $this->showtimeRepository->find($id);
+
+            return response()->json($showtime);
+
+        } catch (Exception $e) {
+            Log::error('Error in AdminShowtimeController@show: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đã xảy ra lỗi khi lấy suất chiếu'
+            ], 500);
+        }
     }
 
     /**

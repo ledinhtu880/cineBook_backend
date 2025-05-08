@@ -1,7 +1,6 @@
 <?php
 
 #region Middleware
-use App\Http\Controllers\Api\BookingController;
 use App\Http\Middleware\AdminMiddleware;
 #endregion
 #region Admin Controller
@@ -19,6 +18,8 @@ use App\Http\Controllers\Api\CinemaController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\ProductComboController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Support\Facades\Route;
 #endregion
 
@@ -48,9 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Booking Management
     Route::prefix('bookings')->controller(BookingController::class)->group(function () {
         Route::post('/', 'store');
-        // Route::get('/', 'index');
-        // Route::get('/{id}', 'show');
-        // Route::delete('/{id}', 'cancel');
+        Route::post('/{id}', 'update');
     });
 
     /* // Reviews & Ratings
@@ -59,6 +58,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', 'update');         // Sửa đánh giá
         Route::delete('/{id}', 'destroy');     // Xóa đánh giá
     }); */
+
+    // Payment
+    Route::prefix('payment')->controller(PaymentController::class)->group(function () {
+        Route::get('/{id}', 'getPaymentLinkInfoOfOrder');
+    });
 });
 #endregion
 

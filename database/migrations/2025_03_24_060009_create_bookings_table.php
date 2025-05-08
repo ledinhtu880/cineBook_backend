@@ -12,10 +12,11 @@ return new class extends Migration {
     {
         Schema::create("bookings", function (Blueprint $table) {
             $table->id();
+            $table->string("code")->unique();
             $table->foreignId("user_id")->constrained()->onDelete("cascade");
             $table->foreignId("showtime_id")->constrained()->onDelete("cascade");
             $table->decimal("total_price", 10, 2);
-            $table->enum("payment_status", ["unpaid", "paid"])->default("unpaid");
+            $table->enum("payment_status", ["unpaid", "paid", "failed"])->default("unpaid");
             $table->enum("payment_method", [
                 "cash",
                 "credit_card",

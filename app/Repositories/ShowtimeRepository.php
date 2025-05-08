@@ -23,7 +23,53 @@ class ShowtimeRepository
 
     public function find($id)
     {
-        return $this->model->findOrFail($id);
+        $startOfWeek = Carbon::parse(now());
+        $endOfWeek = Carbon::parse(now())->addDays(7)->endOfDay();
+        $showtime = $this->model->where('id', $id)
+            ->whereBetween('start_time', [$startOfWeek, $endOfWeek])
+            ->with(['movie:id,title', 'room:id,name', 'room.seats', 'cinema:id,name'])
+            ->orderBy('start_time', 'asc')
+            ->first();
+
+        $date = Carbon::parse($showtime->start_time);
+        $dayType = $this->getDayType($date);
+        $prices = $this->getPricesForShowtime($showtime->cinema->id, $dayType);
+
+        $bookedSeatIds = DB::table('booking_details as bd')
+            ->join('bookings as b', 'bd.booking_id', '=', 'b.id')
+            ->where('b.showtime_id', $showtime->id)
+            ->pluck('bd.seat_id')
+            ->toArray();
+
+        return [
+            'id' => $showtime->id,
+            'start_time' => $showtime->start_time,
+            'end_time' => $showtime->end_time,
+            'start_time_formatted' => $showtime->start_time_formatted,
+            'end_time_formatted' => $showtime->end_time_formatted,
+            'date' => $showtime->date,
+            'room' => [
+                'name' => $showtime->room->name,
+                'seats' => $showtime->room->seats->map(function ($seat) use ($prices, $bookedSeatIds) {
+                    return [
+                        'id' => $seat->id,
+                        'seat_code' => $seat->seat_code,
+                        'seat_type' => $seat->seat_type,
+                        'is_sweetbox' => $seat->is_sweetbox,
+                        'price' => $prices[$seat->seat_type] ?? 0,
+                        'status' => in_array($seat->id, $bookedSeatIds) ? 'booked' : 'available'
+                    ];
+                }),
+            ],
+            'cinema' => [
+                'id' => $showtime->cinema->id,
+                'name' => $showtime->cinema->name
+            ],
+            'movie' => [
+                'id' => $showtime->movie->id,
+                'title' => $showtime->movie->title,
+            ]
+        ];
     }
 
     public function create(array $data)

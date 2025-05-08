@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $fillable = [
+        'code',
         'user_id',
         'showtime_id',
         'total_price',
+        'payment_method',
         'payment_status'
     ];
 
