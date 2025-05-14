@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\User\Booking\BookingStoreRequest as StoreRequest;
 use App\Repositories\BookingRepository;
 use App\Http\Controllers\Controller;
+use App\Mail\BookingConfirmation;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use PayOS\PayOS;
@@ -70,6 +72,8 @@ class BookingController extends Controller
             }
 
             $this->bookingRepository->update($id);
+
+            Mail::to("d.ledinhtu@gmail.com")->send(new BookingConfirmation($booking));
 
             return response()->json([
                 'status' => 'success',

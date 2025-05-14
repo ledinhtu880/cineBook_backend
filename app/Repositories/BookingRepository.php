@@ -22,7 +22,15 @@ class BookingRepository
     }
     public function find(string $id)
     {
-        return $this->booking->findOrFail($id);
+        return $this->booking->with(
+            'user:id,first_name,last_name,email',
+            'showtime:id,movie_id,cinema_id,start_time',
+            'showtime.movie:id,title',
+            'showtime.cinema:id,name',
+            'bookingDetails',
+            'bookingCombos',
+            'bookingCombos.combo'
+        )->findOrFail($id);
     }
     public function create(array $data)
     {
@@ -53,7 +61,7 @@ class BookingRepository
                 foreach ($data['combos'] as $combo) {
                     $this->bookingCombo->create([
                         'booking_id' => $booking->id,
-                        'product_id' => $combo['id'],
+                        'product_combo_id' => $combo['id'],
                         'quantity' => $combo['quantity'],
                         'price' => $combo['price']
                     ]);

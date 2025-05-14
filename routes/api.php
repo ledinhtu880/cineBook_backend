@@ -51,18 +51,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', 'store');
         Route::post('/{id}', 'update');
     });
-
-    /* // Reviews & Ratings
-    Route::prefix('reviews')->controller(ReviewController::class)->group(function () {
-        Route::post('/', 'store');              // Thêm đánh giá
-        Route::put('/{id}', 'update');         // Sửa đánh giá
-        Route::delete('/{id}', 'destroy');     // Xóa đánh giá
-    }); */
-
-    // Payment
-    Route::prefix('payment')->controller(PaymentController::class)->group(function () {
-        Route::get('/{id}', 'getPaymentLinkInfoOfOrder');
-    });
 });
 #endregion
 

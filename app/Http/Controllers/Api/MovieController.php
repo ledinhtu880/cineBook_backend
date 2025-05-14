@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\MovieRepository;
 use App\Repositories\ShowtimeRepository;
+use App\Repositories\MovieRepository;
 use App\Http\Resources\MovieResource;
 use App\Http\Controllers\Controller;
-use App\Helpers\ApiHelper;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use App\Helpers\ApiHelper;
 use Exception;
 
 class MovieController extends Controller

@@ -20,7 +20,7 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function showTime()
+    public function showtime()
     {
         return $this->belongsTo(ShowTime::class);
     }
@@ -36,5 +36,11 @@ class Booking extends Model
     public function bookingCombos()
     {
         return $this->hasMany(BookingCombo::class);
+    }
+
+    // Accessors
+    public function getTotalPriceFormattedAttribute()
+    {
+        return number_format($this->total_price, 0, ',', '.') . ' VNĐ';
     }
 }

@@ -22,7 +22,7 @@ class ProductCombo extends Model
     ];
     public function bookingCombos()
     {
-        return $this->hasMany(BookingCombo::class);
+        return $this->hasMany(BookingCombo::class, 'product_combo_id', 'id');
     }
 
     public function scopeActive(Builder $query)

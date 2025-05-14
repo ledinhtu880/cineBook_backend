@@ -21,6 +21,6 @@ class BookingCombo extends Model
 
     public function combo()
     {
-        return $this->belongsTo(ProductCombo::class);
+        return $this->belongsTo(ProductCombo::class, 'product_combo_id', 'id');
     }
 }
