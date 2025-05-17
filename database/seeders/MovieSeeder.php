@@ -57,15 +57,16 @@ class MovieSeeder extends Seeder
         $foundGenres = array_unique(array_map('trim', $foundGenres));
 
         foreach ($foundGenres as $genreName) {
-            $existingGenre = $existingGenres->first(function ($genre) use ($genreName) {
-                return strtolower($genre->name) === strtolower($genreName);
+            $slug = Str::slug($genreName);
+
+            $existingGenre = $existingGenres->first(function ($genre) use ($genreName, $slug) {
+                return (strtolower($genre->name) === strtolower($genreName)) || ($genre->slug === $slug);
             });
 
             if (!$existingGenre) {
                 $genreId = DB::table('genres')->insertGetId([
                     'name' => $genreName,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'slug' => Str::slug($genreName),
                 ]);
                 $genresMap[strtolower($genreName)] = $genreId;
             } else {
@@ -89,20 +90,20 @@ class MovieSeeder extends Seeder
             // Xử lý poster
             $posterPath = null;
             if (isset($movie['poster_url'])) {
-                $posterPath = $this->downloadImageIfNotExists($movie['poster_url'],  'posters');
+                $posterPath = $this->downloadImageIfNotExists($movie['poster_url'], 'posters');
             }
 
             // Xử lý banner
             $bannerPath = null;
             if (isset($movie['backdrop_url'])) {
-                $bannerPath = $this->downloadImageIfNotExists($movie['backdrop_url'],  'banners');
+                $bannerPath = $this->downloadImageIfNotExists($movie['backdrop_url'], 'banners');
             }
 
             $duration = 0;
             if (isset($movie['duration'])) {
                 preg_match('/(\d+)/', $movie['duration'], $matches);
                 if (isset($matches[1])) {
-                    $duration = (int)$matches[1];
+                    $duration = (int) $matches[1];
                 }
             }
 

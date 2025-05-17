@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\ProductComboController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\GenreController;
 use Illuminate\Support\Facades\Route;
 #endregion
 
@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['check.referer'])->group(
     function () {
         Route::prefix('movies')->controller(MovieController::class)->group(function () {
+            Route::get("/", 'index');
             Route::get('/now-showing', 'nowShowing');
             Route::get('/coming-soon', 'comingSoon');
             Route::get('/{slug}', 'show');
@@ -75,6 +76,10 @@ Route::middleware(['check.referer'])->group(
         });
 
         Route::prefix('combos')->controller(ProductComboController::class)->group(function () {
+            Route::get('/', 'index');
+        });
+
+        Route::prefix('genres')->controller(GenreController::class)->group(function () {
             Route::get('/', 'index');
         });
     }

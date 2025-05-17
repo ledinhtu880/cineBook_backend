@@ -4,6 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\Genre;
+
 
 class GenreSeeder extends Seeder
 {
@@ -26,7 +29,6 @@ class GenreSeeder extends Seeder
             ['name' => 'Nhạc', 'english_name' => 'Music'],
             ['name' => 'Lãng mạn', 'english_name' => 'Romance'],
             ['name' => 'Khoa học viễn tưởng', 'english_name' => 'Science Fiction'],
-            // Thêm các thể loại khác mà bạn có thể cần
             ['name' => 'Bí ẩn', 'english_name' => 'Mystery'],
             ['name' => 'Lịch sử', 'english_name' => 'History'],
             ['name' => 'Chiến tranh', 'english_name' => 'War'],
@@ -42,8 +44,8 @@ class GenreSeeder extends Seeder
             DB::table('genres')->insert([
                 'name' => $genre['name'],
                 'english_name' => $genre['english_name'],
-                'created_at' => now(),
-                'updated_at' => now()
+                'slug' => Str::slug($genre['name']),
+                'english_slug' => Str::slug($genre['english_name']),
             ]);
         }
     }

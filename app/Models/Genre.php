@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Genre extends Model
 {
     protected $fillable = [
-        'name'
+        'name',
+        'english_name',
+        'slug',
+        'english_slug',
     ];
     public function movies(): BelongsToMany
     {

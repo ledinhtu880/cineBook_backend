@@ -16,9 +16,10 @@ class ApiHelper
     {
         return [
             'sort' => $request->input('sort', 'created_at'),
-            'search' => $request->input('search', null),
             'limit' => $request->input('limit', null),
             'page' => $request->input('page', 1),
+            'q' => $request->input('q', null),
+            'g' => $request->input('g', null),
         ];
     }
 
@@ -38,13 +39,19 @@ class ApiHelper
         }
 
         // Tìm kiếm theo từ khóa
-        if (isset($params['search']) && !empty($params['search'])) {
-            $query->where('title', 'like', '%' . $params['search'] . '%');
+        if (isset($params['q']) && !empty($params['q'])) {
+            $query->where('title', 'like', '%' . $params['q'] . '%');
         }
 
         // Giới hạn số lượng kết quả
         if (isset($params['limit']) && is_numeric($params['limit'])) {
             $query->limit($params['limit']);
+        }
+
+        if (isset($params['g']) && is_array($params['g'])) {
+            $query->whereHas('genres', function ($q) use ($params) {
+                $q->whereIn('slug', $params['g']);
+            });
         }
 
         return $query;
