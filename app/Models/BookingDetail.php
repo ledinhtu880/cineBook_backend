@@ -22,4 +22,8 @@ class BookingDetail extends Model
     {
         return $this->belongsTo(Seat::class);
     }
+    public function getSeatCodeAttribute()
+    {
+        return $this->seat->seat_code;
+    }
 }

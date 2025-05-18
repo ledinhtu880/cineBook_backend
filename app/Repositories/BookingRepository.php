@@ -20,17 +20,17 @@ class BookingRepository
         $this->bookingDetail = $bookingDetail;
         $this->bookingCombo = $bookingCombo;
     }
+    public function getByUser($id)
+    {
+        return $this->booking
+            ->withBookingRelations()
+            ->where('user_id', $id)
+            ->get();
+    }
     public function find(string $id)
     {
-        return $this->booking->with(
-            'user:id,first_name,last_name,email',
-            'showtime:id,movie_id,cinema_id,start_time',
-            'showtime.movie:id,title',
-            'showtime.cinema:id,name',
-            'bookingDetails',
-            'bookingCombos',
-            'bookingCombos.combo'
-        )->findOrFail($id);
+        return $this->booking->withBookingRelations()
+            ->findOrFail($id);
     }
     public function create(array $data)
     {

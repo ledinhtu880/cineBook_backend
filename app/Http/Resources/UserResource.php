@@ -33,6 +33,10 @@ class UserResource extends JsonResource
             $data = array_merge($data, [
                 'first_name' => $this->first_name,
                 'last_name' => $this->last_name,
+                'city' => [
+                    'id' => $this->city_id,
+                    'name' => $this->city->name,
+                ]
             ]);
         }
 

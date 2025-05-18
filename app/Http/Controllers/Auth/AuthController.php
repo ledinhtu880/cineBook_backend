@@ -31,7 +31,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => new UserResource($user)
+                'data' => (new UserResource($user))->withFullInfo(),
             ]);
         } catch (Exception $e) {
             Log::error("Error in AuthController@user: " . $e->getMessage());
@@ -46,11 +46,14 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         try {
+            $data = $request->validated();
             User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'phone' => $data['phone'],
+                'city_id' => $data['city_id'],
             ]);
 
             return response()->json([

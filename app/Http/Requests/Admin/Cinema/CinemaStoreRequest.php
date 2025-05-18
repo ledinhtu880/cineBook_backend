@@ -10,6 +10,15 @@ class CinemaStoreRequest extends FormRequest
     {
         return true;
     }
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'address' => 'required|string',
+            'city_id' => 'required|integer',
+            'phone' => 'required|string',
+        ];
+    }
     public function messages(): array
     {
         return [

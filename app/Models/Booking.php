@@ -38,9 +38,29 @@ class Booking extends Model
         return $this->hasMany(BookingCombo::class);
     }
 
+    // Scopes
+    public function scopeWithBookingRelations($query)
+    {
+        return $query->with(
+            'user:id,first_name,last_name,email',
+            'showtime:id,movie_id,cinema_id,start_time',
+            'showtime.movie:id,title,poster_url',
+            'showtime.cinema:id,name',
+            'bookingDetails',
+            'bookingCombos',
+            'bookingCombos.combo'
+        );
+    }
+
     // Accessors
     public function getTotalPriceFormattedAttribute()
     {
         return number_format($this->total_price, 0, ',', '.') . ' VNĐ';
+    }
+    public function getSeatsAttribute()
+    {
+        $seats = $this->bookingDetails->pluck('seat_code')->toArray();
+        sort($seats);
+        return implode(', ', $seats);
     }
 }

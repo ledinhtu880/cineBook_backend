@@ -39,18 +39,16 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 
 #region User Routes (Required Authentication)
 Route::middleware('auth:sanctum')->group(function () {
-    /* // Profile Management
-    Route::prefix('profile')->controller(ProfileController::class)->group(function () {
+    Route::resource('bookings', BookingController::class)->only(['index', 'store', 'update']);
+
+    // Profile Management
+    /* Route::prefix('profile')->controller(ProfileController::class)->group(function () {
         Route::get('/', 'show');
         Route::put('/', 'update');
         Route::put('/password', 'updatePassword');
     }); */
 
     // Booking Management
-    Route::prefix('bookings')->controller(BookingController::class)->group(function () {
-        Route::post('/', 'store');
-        Route::post('/{id}', 'update');
-    });
 });
 #endregion
 

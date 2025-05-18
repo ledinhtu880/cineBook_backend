@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\User\Booking\BookingStoreRequest as StoreRequest;
 use App\Repositories\BookingRepository;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BookingResource;
 use App\Mail\BookingConfirmation;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use PayOS\PayOS;
@@ -24,6 +26,21 @@ class BookingController extends Controller
         $checksumKey = env('PAYOS_CHECKSUM_KEY');
 
         $this->payOS = new PayOS($clientId, $apiKey, $checksumKey);
+    }
+    public function index()
+    {
+        try {
+            $userId = Auth::user()->id;
+            $bookings = $this->bookingRepository->getByUser($userId);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => BookingResource::collection($bookings),
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error in BookingController@getByUser: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Có lỗi xảy ra khi lấy danh sách vé.'], 500);
+        }
     }
     public function store(StoreRequest $request)
     {
@@ -73,7 +90,7 @@ class BookingController extends Controller
 
             $this->bookingRepository->update($id);
 
-            Mail::to("d.ledinhtu@gmail.com")->send(new BookingConfirmation($booking));
+            Mail::to($booking->user->email)->send(new BookingConfirmation($booking));
 
             return response()->json([
                 'status' => 'success',
