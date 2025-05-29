@@ -157,9 +157,6 @@ def get_galaxy_movies_selenium(url):
     
     movie_list = []
     for index, card in enumerate(movie_cards):  
-        if(index > 5):
-            continue
-
         try:
             print(f"Đang xử lý phim {index+1}/{len(movie_cards)}")
             
