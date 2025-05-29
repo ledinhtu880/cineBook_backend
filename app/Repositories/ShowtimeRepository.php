@@ -18,7 +18,7 @@ class ShowtimeRepository
 
     public function all()
     {
-        return $this->model->all();
+        return $this->model->orderBy('start_time', 'asc')->get();
     }
 
     public function find($id)

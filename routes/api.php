@@ -55,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
 #region Public Routes
 Route::middleware(['check.referer'])->group(
     function () {
+        Route::apiResource('showtimes', AdminShowtimeController::class)->only('show');
+
         Route::prefix('movies')->controller(MovieController::class)->group(function () {
             Route::get("/", 'index');
             Route::get('/now-showing', 'nowShowing');
@@ -69,17 +71,9 @@ Route::middleware(['check.referer'])->group(
             Route::get('/{slug}/showtimes', 'getShowtimesByDate');
         });
 
-        Route::prefix('cities')->controller(CityController::class)->group(function () {
-            Route::get('/', 'index');
-        });
-
-        Route::prefix('combos')->controller(ProductComboController::class)->group(function () {
-            Route::get('/', 'index');
-        });
-
-        Route::prefix('genres')->controller(GenreController::class)->group(function () {
-            Route::get('/', 'index');
-        });
+        Route::apiResource('cities', CityController::class)->only(['index']);
+        Route::apiResource('combos', ProductComboController::class)->only(['index']);
+        Route::apiResource('genres', GenreController::class)->only(['index']);
     }
 );
 #endregion
@@ -92,7 +86,7 @@ Route::middleware(['auth:sanctum', AdminMiddleware::class])
         Route::apiResource('users', AdminUserController::class)->except(['store', 'update', 'destroy']);
         Route::apiResource('cinemas', AdminCinemaController::class);
         Route::apiResource('rooms', AdminRoomController::class)->except(['store', 'update']);
-        Route::apiResource('showtimes', AdminShowtimeController::class);
+        Route::apiResource('showtimes', AdminShowtimeController::class)->except('show');
 
         Route::prefix('cinemas')->controller(AdminCinemaController::class)->group(function () {
             Route::get('/{id}/rooms', 'getRooms');

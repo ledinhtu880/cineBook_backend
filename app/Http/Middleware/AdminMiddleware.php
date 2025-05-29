@@ -14,7 +14,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->user() || $request->user()->role == 'user') {
+        if (!$request->user() || $request->user()->role == 0) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Không có quyền truy cập'
