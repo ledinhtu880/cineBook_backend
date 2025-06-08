@@ -64,7 +64,7 @@ class AdminCinemaController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Tạo phòng chiếu thành công'
+                'message' => 'Thêm phòng chiếu thành công'
             ], 201);
         } catch (Exception $ex) {
             Log::error('Error in AdminCinemaController@storeRoom: ' . $ex->getMessage());
@@ -83,7 +83,7 @@ class AdminCinemaController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Tạo rạp chiếu phim thành công'
+                'message' => 'Thêm rạp chiếu phim thành công'
             ], 201);
         } catch (Exception $ex) {
             Log::error('Error in AdminCinemaController@store: ' . $ex->getMessage());

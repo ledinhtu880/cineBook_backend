@@ -55,7 +55,7 @@ class AdminMovieController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Tạo phim thành công'
+                'message' => 'Thêm phim thành công'
             ], 201);
         } catch (Exception $ex) {
             Log::error('Error in AdminMovieController@store: ' . $ex->getMessage());
